@@ -11,6 +11,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	// メモリリーク通知
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
+	// COMライブラリの初期化
+	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
 	// インスタンス作成
 	MyWindow& myWindow = MyWindow::GetInstance();
 
@@ -46,6 +49,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
 	// シングルトン終了
 	SingletonFinalizer::Finalize();
+
+	// COMライブラリの終了処理
+	CoUninitialize();
 
 	return (int)msg.wParam;
 }

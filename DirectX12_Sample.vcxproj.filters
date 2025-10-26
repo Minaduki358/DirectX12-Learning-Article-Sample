@@ -19,6 +19,9 @@
     <Filter Include="function">
       <UniqueIdentifier>{ebed6477-5007-4097-92d9-fe716bdc1385}</UniqueIdentifier>
     </Filter>
+    <Filter Include="directx">
+      <UniqueIdentifier>{9cec802e-dcbc-48a3-9bad-f4eef2419064}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\system\main.cpp">
@@ -33,6 +36,9 @@
     <ClCompile Include="source\system\mywindow.cpp">
       <Filter>system</Filter>
     </ClCompile>
+    <ClCompile Include="source\directx\renderer.cpp">
+      <Filter>directx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\stdafx.h">
@@ -46,6 +52,9 @@
     </ClInclude>
     <ClInclude Include="source\system\system_data.h">
       <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\renderer.h">
+      <Filter>directx</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

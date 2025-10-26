@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\directx\renderer.cpp" />
     <ClCompile Include="source\function\singleton.cpp" />
     <ClCompile Include="source\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -150,6 +151,7 @@
     <ClCompile Include="source\system\mywindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="source\directx\renderer.h" />
     <ClInclude Include="source\function\singleton.h" />
     <ClInclude Include="source\stdafx.h" />
     <ClInclude Include="source\system\mywindow.h" />
