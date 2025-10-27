@@ -1,4 +1,5 @@
 #include"../system/mywindow.h"
+#include"../directx/renderer.h"
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
@@ -16,9 +17,15 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
 	// インスタンス作成
 	MyWindow& myWindow = MyWindow::GetInstance();
+	Renderer& renderer = Renderer::GetInstance();
 
 	// ウィンドウ生成
 	if (myWindow.Create() == false)
+	{
+		return 0;
+	}
+
+	if (renderer.Init() == false)
 	{
 		return 0;
 	}

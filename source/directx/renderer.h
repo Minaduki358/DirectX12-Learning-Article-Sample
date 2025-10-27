@@ -44,19 +44,34 @@ private:
 	bool CreateCommandAllocator();
 
 	/// <summary>
-	/// CreateCommandListの作成
+	/// CommandListの作成
 	/// </summary>
 	bool CreateCommandList();
 
 	/// <summary>
-	/// CreateCommandQueueの作成
+	/// CommandQueueの作成
 	/// </summary>
 	bool CreateCommandQueue();
 
 	/// <summary>
-	/// CreateSwapChainの作成
+	/// SwapChainの作成
 	/// </summary>
 	bool CreateSwapChain();
+
+	/// <summary>
+	/// BackBufferRenderTargetDecriptorHeapの作成
+	/// </summary>
+	bool CreateBackBufferRenderTargetDecriptorHeap();
+
+	/// <summary>
+	/// BackBufferRenderTargetの作成
+	/// </summary>
+	bool CreateBackBufferRenderTarget();
+
+	/// <summary>
+	/// Fenceの作成
+	/// </summary>
+	bool CreateFence();
 private:
 	Microsoft::WRL::ComPtr<IDXGIFactory6> m_DxgiFactory = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Device> m_Device = nullptr;
@@ -66,4 +81,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue = nullptr;
 
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> m_Swapchain = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_BackBufferRenderTargetDecriptorHeap = nullptr;
+	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_BackBufferRenderTargets;
+
+	Microsoft::WRL::ComPtr<ID3D12Fence> m_Fence = nullptr;
+	UINT64 m_FenceVal = 0;
 };

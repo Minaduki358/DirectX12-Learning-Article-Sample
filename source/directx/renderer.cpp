@@ -6,7 +6,59 @@ using namespace Microsoft::WRL;
 
 bool Renderer::Init()
 {
-	return false;
+    if (CreateDXGI() == false)
+    {
+        return false;
+    }
+
+#ifdef _DEBUG
+    if (EnableDebugLayer() == false)
+    {
+        return false;
+    }
+#endif
+
+    if (CreateDevice() == false)
+    {
+        return false;
+    }
+
+    if (CreateCommandAllocator() == false)
+    {
+        return false;
+    }
+
+    if (CreateCommandList() == false)
+    {
+        return false;
+    }
+
+    if (CreateCommandQueue() == false)
+    {
+        return false;
+    }
+
+    if (CreateSwapChain() == false)
+    {
+        return false;
+    }
+
+    if (CreateBackBufferRenderTargetDecriptorHeap() == false)
+    {
+        return false;
+    }
+
+    if (CreateBackBufferRenderTarget() == false)
+    {
+        return false;
+    }
+
+    if (CreateFence() == false)
+    {
+        return false;
+    }
+
+	return true;
 }
 
 bool Renderer::CreateDXGI()
@@ -90,7 +142,7 @@ bool Renderer::CreateDevice()
         }
     }
 
-    return false;
+    return true;
 }
 
 bool Renderer::CreateCommandAllocator()
@@ -123,7 +175,7 @@ bool Renderer::CreateCommandList()
         return false;
     }
 
-    return false;
+    return true;
 }
 
 bool Renderer::CreateCommandQueue()
@@ -144,7 +196,7 @@ bool Renderer::CreateCommandQueue()
         return false;
     }
 
-    return false;
+    return true;
 }
 
 bool Renderer::CreateSwapChain()
@@ -159,7 +211,6 @@ bool Renderer::CreateSwapChain()
     swapchainDesc.SampleDesc.Quality = 0;
     swapchainDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER;
     swapchainDesc.BufferCount = 2;
-
     swapchainDesc.Scaling = DXGI_SCALING_STRETCH;
     swapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     swapchainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
@@ -193,6 +244,88 @@ bool Renderer::CreateSwapChain()
     result = m_DxgiFactory->MakeWindowAssociation(
         myWindow.GetHWND(),
         DXGI_MWA_NO_ALT_ENTER
+    );
+
+    if (FAILED(result))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool Renderer::CreateBackBufferRenderTargetDecriptorHeap()
+{
+    D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+    heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+    heapDesc.NodeMask = 0;
+    // 表裏の2つ
+    heapDesc.NumDescriptors = 2;
+    heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+
+    HRESULT result = m_Device->CreateDescriptorHeap(
+        &heapDesc,
+        IID_PPV_ARGS(m_BackBufferRenderTargetDecriptorHeap.ReleaseAndGetAddressOf())
+    );
+
+    if (FAILED(result))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool Renderer::CreateBackBufferRenderTarget()
+{
+    DXGI_SWAP_CHAIN_DESC1 swcDesc = {};
+    HRESULT result = m_Swapchain->GetDesc1(&swcDesc);
+
+    if (FAILED(result))
+    {
+        return false;
+    }
+
+    D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+    // ガンマ補正
+    rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+    rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_BackBufferRenderTargetDecriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    UINT rtvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+    for (UINT i = 0; i < swcDesc.BufferCount; i++)
+    {
+        // SwapChainとRenderTargetを紐づける
+        ComPtr<ID3D12Resource> resource;
+        HRESULT result = m_Swapchain->GetBuffer(i, IID_PPV_ARGS(resource.ReleaseAndGetAddressOf()));
+
+        if (FAILED(result))
+        {
+            return false;
+        }
+
+        m_BackBufferRenderTargets.push_back(resource);
+
+        // RenderTargetの作成
+        m_Device->CreateRenderTargetView(
+            m_BackBufferRenderTargets[i].Get(),
+            &rtvDesc,
+            rtvHandle
+        );
+
+        // ポインタをずらす
+        rtvHandle.ptr += rtvDescriptorSize;
+    }
+
+    return true;
+}
+
+bool Renderer::CreateFence()
+{
+    HRESULT result = m_Device->CreateFence(
+        m_FenceVal,
+        D3D12_FENCE_FLAG_NONE,
+        IID_PPV_ARGS(m_Fence.ReleaseAndGetAddressOf())
     );
 
     if (FAILED(result))
