@@ -47,11 +47,13 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 		}
 		else
 		{
-
+			renderer.DrawBegin();
+			renderer.DrawEnd();
 		}
 	}
 
-	// ウィンドウ終了処理
+	// 終了処理
+	renderer.Uninit();
 	myWindow.Uninit();
 
 	// シングルトン終了

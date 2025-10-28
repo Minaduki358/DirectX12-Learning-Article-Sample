@@ -61,6 +61,75 @@ bool Renderer::Init()
 	return true;
 }
 
+void Renderer::Uninit()
+{
+    // GPU処理が完全に終わるまで待機
+    if (m_Fence && m_CommandQueue) 
+    {
+        m_CommandQueue->Signal(m_Fence.Get(), ++m_FenceVal);
+        if (m_Fence->GetCompletedValue() < m_FenceVal) 
+        {
+            if (m_FenceEvent != nullptr) 
+            {
+                m_Fence->SetEventOnCompletion(m_FenceVal, m_FenceEvent);
+                WaitForSingleObject(m_FenceEvent, INFINITE);
+            }
+        }
+    }
+
+    // HANDLEをクローズ
+    if (m_FenceEvent != nullptr) 
+    {
+        CloseHandle(m_FenceEvent);
+        m_FenceEvent = nullptr;
+    }
+}
+
+void Renderer::DrawBegin()
+{
+    // 前フレームのGPU完了を待つ
+    WaitForPreviousFrameGPU();
+
+    m_CommandAllocator->Reset();
+    m_CommandList->Reset(m_CommandAllocator.Get(), nullptr);
+
+    UINT backBufferIndex = m_Swapchain->GetCurrentBackBufferIndex();
+
+    // Present → RenderTarget
+    D3D12_RESOURCE_BARRIER barrierDesc = {};
+    barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    barrierDesc.Transition.pResource = m_BackBufferRenderTargets[backBufferIndex].Get();
+    barrierDesc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+    barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+    barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    m_CommandList->ResourceBarrier(1, &barrierDesc);
+}
+
+void Renderer::DrawEnd()
+{
+    UINT backBufferIndex = m_Swapchain->GetCurrentBackBufferIndex();
+
+    // RenderTarget → Present
+    D3D12_RESOURCE_BARRIER barrierDesc = {};
+    barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    barrierDesc.Transition.pResource = m_BackBufferRenderTargets[backBufferIndex].Get();
+    barrierDesc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+    barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+    barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+    m_CommandList->ResourceBarrier(1, &barrierDesc);
+
+    m_CommandList->Close();
+    ID3D12CommandList* cmdLists[] = { m_CommandList.Get() };
+    m_CommandQueue->ExecuteCommandLists(1, cmdLists);
+
+    m_FenceVal++;
+    m_CommandQueue->Signal(m_Fence.Get(), m_FenceVal);
+
+    m_Swapchain->Present(1, 0);
+}
+
 bool Renderer::CreateDXGI()
 {
 #ifdef _DEBUG
@@ -174,6 +243,8 @@ bool Renderer::CreateCommandList()
     {
         return false;
     }
+
+    m_CommandList->Close();
 
     return true;
 }
@@ -333,5 +404,25 @@ bool Renderer::CreateFence()
         return false;
     }
 
+    m_FenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+
+    if (m_FenceEvent == nullptr) 
+    {
+        return false;
+    }
+
     return true;
+}
+
+void Renderer::WaitForPreviousFrameGPU()
+{
+    const UINT64 fenceValue = m_FenceVal;
+
+    // GPU完了値を確認
+    if (m_Fence->GetCompletedValue() < fenceValue)
+    {
+        // まだ完了していない場合は待機
+        m_Fence->SetEventOnCompletion(fenceValue, m_FenceEvent);
+        WaitForSingleObject(m_FenceEvent, INFINITE);
+    }
 }

@@ -19,6 +19,21 @@ public:
 	/// 初期化
 	/// </summary>
 	bool Init();
+
+	/// <summary>
+	/// 終了処理
+	/// </summary>
+	void Uninit();
+
+	/// <summary>
+	/// 描画開始処理
+	/// </summary>
+	void DrawBegin();
+
+	/// <summary>
+	/// 描画終了処理
+	/// </summary>
+	void DrawEnd();
 private:
 
 	/// <summary>
@@ -72,6 +87,11 @@ private:
 	/// Fenceの作成
 	/// </summary>
 	bool CreateFence();
+
+	/// <summary>
+	/// 前フレームの描画処理の完了を待つ
+	/// </summary>
+	void WaitForPreviousFrameGPU();
 private:
 	Microsoft::WRL::ComPtr<IDXGIFactory6> m_DxgiFactory = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Device> m_Device = nullptr;
@@ -86,4 +106,5 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12Fence> m_Fence = nullptr;
 	UINT64 m_FenceVal = 0;
+	HANDLE m_FenceEvent = nullptr;
 };
