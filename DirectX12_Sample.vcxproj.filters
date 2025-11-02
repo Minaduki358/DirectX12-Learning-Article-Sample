@@ -22,6 +22,15 @@
     <Filter Include="directx">
       <UniqueIdentifier>{9cec802e-dcbc-48a3-9bad-f4eef2419064}</UniqueIdentifier>
     </Filter>
+    <Filter Include="directx\render_pipeline">
+      <UniqueIdentifier>{8149ad65-f171-4d21-91a8-b1c2f1ac1d31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="directx\shader">
+      <UniqueIdentifier>{0a4a41e3-ef88-4dc8-bba6-94fdd238c052}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="directx\texture">
+      <UniqueIdentifier>{570eb125-c063-47cf-aff6-94284bb469e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\system\main.cpp">
@@ -38,6 +47,39 @@
     </ClCompile>
     <ClCompile Include="source\directx\renderer.cpp">
       <Filter>directx</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\render_pipeline\render_pipeline.cpp">
+      <Filter>directx\render_pipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\render_pipeline\render_pipeline_descriptor.cpp">
+      <Filter>directx\render_pipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\shader\shader.cpp">
+      <Filter>directx\shader</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\render_pipeline\render_pipeline_manager.cpp">
+      <Filter>directx\render_pipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\render_pipeline\root_parameter_type.cpp">
+      <Filter>directx\render_pipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\render_pipeline\root_parameter_descriptor.cpp">
+      <Filter>directx\render_pipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\test_mesh.cpp">
+      <Filter>directx</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\texture\texture.cpp">
+      <Filter>directx\texture</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\texture\texture_manager.cpp">
+      <Filter>directx\texture</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\vertex_helper.cpp">
+      <Filter>directx</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\texture\texture_helper.cpp">
+      <Filter>directx\texture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -56,5 +98,51 @@
     <ClInclude Include="source\directx\renderer.h">
       <Filter>directx</Filter>
     </ClInclude>
+    <ClInclude Include="source\directx\render_pipeline\render_pipeline.h">
+      <Filter>directx\render_pipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\render_pipeline\render_pipeline_descriptor.h">
+      <Filter>directx\render_pipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\render_pipeline\render_pipeline_manager.h">
+      <Filter>directx\render_pipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\shader\shader.h">
+      <Filter>directx\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\render_pipeline\root_parameter_type.h">
+      <Filter>directx\render_pipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\render_pipeline\root_parameter_descriptor.h">
+      <Filter>directx\render_pipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\test_mesh.h">
+      <Filter>directx</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\texture\texture.h">
+      <Filter>directx\texture</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\texture\texture_manager.h">
+      <Filter>directx\texture</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\vertex_helper.h">
+      <Filter>directx</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\texture\texture_helper.h">
+      <Filter>directx\texture</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="source\directx\shader\basic_vs.hlsl">
+      <Filter>directx\shader</Filter>
+    </FxCompile>
+    <FxCompile Include="source\directx\shader\basic_ps.hlsl">
+      <Filter>directx\shader</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="source\directx\shader\basic_header.hlsli">
+      <Filter>directx\shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

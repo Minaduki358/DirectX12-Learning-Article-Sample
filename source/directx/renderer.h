@@ -1,6 +1,9 @@
 #pragma once
 
 #include"../function/singleton.h"
+#include"render_pipeline/render_pipeline_manager.h"
+#include"texture/texture_manager.h"
+#include"texture/texture.h"
 
 /// <summary>
 /// 描画基盤クラス
@@ -34,6 +37,10 @@ public:
 	/// 描画終了処理
 	/// </summary>
 	void DrawEnd();
+
+	ID3D12Device* GetDevice() const { return m_Device.Get(); }
+
+	ID3D12GraphicsCommandList* GetCommandList() const { return m_CommandList.Get(); }
 private:
 
 	/// <summary>
@@ -84,6 +91,11 @@ private:
 	bool CreateBackBufferRenderTarget();
 
 	/// <summary>
+	/// DepthStencilの作成
+	/// </summary>
+	bool CreateDepthStencil();
+
+	/// <summary>
 	/// Fenceの作成
 	/// </summary>
 	bool CreateFence();
@@ -104,7 +116,15 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_BackBufferRenderTargetDecriptorHeap = nullptr;
 	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_BackBufferRenderTargets;
 
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DepthStencilDecriptorHeap = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> m_DepthStencil = nullptr;
+	D3D12_CPU_DESCRIPTOR_HANDLE m_DepthStencilViewHandle = {};
+
 	Microsoft::WRL::ComPtr<ID3D12Fence> m_Fence = nullptr;
 	UINT64 m_FenceVal = 0;
 	HANDLE m_FenceEvent = nullptr;
+
+	std::unique_ptr<RenderPipelineManager> m_RenderPipelineManager;
+	std::unique_ptr<TextureManager> m_TextureManager;
+	Texture* texture;
 };

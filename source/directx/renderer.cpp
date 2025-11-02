@@ -1,5 +1,6 @@
 #include"renderer.h"
 #include"../system/mywindow.h"
+#include "test_mesh.h"
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -53,10 +54,63 @@ bool Renderer::Init()
         return false;
     }
 
+    if (CreateDepthStencil() == false)
+    {
+        return false;
+    }
+
     if (CreateFence() == false)
     {
         return false;
     }
+
+    m_TextureManager = std::make_unique<TextureManager>(m_Device.Get(), m_CommandList.Get(), m_CommandQueue.Get(), m_CommandAllocator.Get());
+    if (m_TextureManager->Init() == false)
+    {
+        return false;
+    }
+
+    texture = m_TextureManager->LoadTexture(L"resources/texture/test.png");
+
+    m_RenderPipelineManager = std::make_unique<RenderPipelineManager>();
+    m_RenderPipelineManager->Init(m_Device.Get(), m_CommandList.Get());
+
+    RenderPipelineDescriptor basicDesc;
+    basicDesc.vsFilePath = L"source/directx/shader/basic_vs.hlsl";
+    basicDesc.psFilePath = L"source/directx/shader/basic_ps.hlsl";
+    basicDesc.inputLayout = {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
+    };
+    // テクスチャ用のSRVパラメーターを追加
+    RootParameterDescriptor textureParam;
+    textureParam.type = RootParameterType::DescriptorTable; 
+    textureParam.shaderRegister = 0;
+    textureParam.registerSpace = 0;
+    textureParam.visibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    textureParam.rangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    textureParam.descriptorRangeCount = 1;
+    basicDesc.rootParameters.push_back(textureParam);
+
+    // 静的サンプラーを追加
+    D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
+    samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+    samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    samplerDesc.MipLODBias = 0;
+    samplerDesc.MaxAnisotropy = 1;
+    samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+    samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+    samplerDesc.MinLOD = 0.0f;
+    samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+    samplerDesc.ShaderRegister = 0;
+    samplerDesc.RegisterSpace = 0;
+    samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    basicDesc.staticSamplers.push_back(samplerDesc);
+
+    m_RenderPipelineManager->CreatePipeline("basic", basicDesc);
+
 
 	return true;
 }
@@ -104,6 +158,47 @@ void Renderer::DrawBegin()
     barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
     barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
     m_CommandList->ResourceBarrier(1, &barrierDesc);
+
+    // RenderTargetとDepthStencilを設定
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_BackBufferRenderTargetDecriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    UINT rtvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+    rtvHandle.ptr += static_cast<SIZE_T>(backBufferIndex) * rtvDescriptorSize;
+    m_CommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &m_DepthStencilViewHandle);
+    // クリア
+    const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
+    m_CommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+    m_CommandList->ClearDepthStencilView(m_DepthStencilViewHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+    // ビューポートの設定（フレーム開始時に1回）
+    D3D12_VIEWPORT viewport = {};
+    viewport.Width = static_cast<float>(SystemData::k_ScreenWidth);
+    viewport.Height = static_cast<float>(SystemData::k_ScreenHeight);
+    viewport.TopLeftX = 0.0f;
+    viewport.TopLeftY = 0.0f;
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    m_CommandList->RSSetViewports(1, &viewport);
+
+    // シザー矩形の設定（フレーム開始時に1回）
+    D3D12_RECT scissorRect = {};
+    scissorRect.left = 0;
+    scissorRect.top = 0;
+    scissorRect.right = SystemData::k_ScreenWidth;
+    scissorRect.bottom = SystemData::k_ScreenHeight;
+    m_CommandList->RSSetScissorRects(1, &scissorRect);
+
+    m_RenderPipelineManager->SetPipeline("basic");
+
+    // SRV用DescriptorHeapを設定
+    ID3D12DescriptorHeap* descriptorHeaps[] = { m_TextureManager->GetSRVDescriptorHeap() };
+    m_CommandList->SetDescriptorHeaps(1, descriptorHeaps);
+
+    // テクスチャのSRVをルートパラメータ0に設定
+    if (texture)
+    {
+        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = texture->GetGPUDescriptorHandle();
+        m_CommandList->SetGraphicsRootDescriptorTable(0, textureHandle);
+    }
 }
 
 void Renderer::DrawEnd()
@@ -387,6 +482,80 @@ bool Renderer::CreateBackBufferRenderTarget()
         // ポインタをずらす
         rtvHandle.ptr += rtvDescriptorSize;
     }
+
+    return true;
+}
+
+bool Renderer::CreateDepthStencil()
+{
+    // DepthStencilView用のDescriptorHeapを作成
+    D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+    dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+    dsvHeapDesc.NodeMask = 0;
+    dsvHeapDesc.NumDescriptors = 1;
+    dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+
+    HRESULT result = m_Device->CreateDescriptorHeap(
+        &dsvHeapDesc,
+        IID_PPV_ARGS(m_DepthStencilDecriptorHeap.ReleaseAndGetAddressOf())
+    );
+
+    if (FAILED(result))
+    {
+        return false;
+    }
+
+    // DepthStencilリソースの作成
+    D3D12_RESOURCE_DESC depthDesc = {};
+    depthDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    depthDesc.Width = SystemData::k_ScreenWidth;
+    depthDesc.Height = SystemData::k_ScreenHeight;
+    depthDesc.DepthOrArraySize = 1;
+    depthDesc.MipLevels = 1;
+    depthDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    depthDesc.SampleDesc.Count = 1;
+    depthDesc.SampleDesc.Quality = 0;
+    depthDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+    depthDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+    D3D12_CLEAR_VALUE clearValue = {};
+    clearValue.Format = DXGI_FORMAT_D32_FLOAT;
+    clearValue.DepthStencil.Depth = 1.0f;
+    clearValue.DepthStencil.Stencil = 0;
+
+    D3D12_HEAP_PROPERTIES heapProps = {};
+    heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
+    heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+    heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+    heapProps.CreationNodeMask = 0;
+    heapProps.VisibleNodeMask = 0;
+
+    result = m_Device->CreateCommittedResource(
+        &heapProps,
+        D3D12_HEAP_FLAG_NONE,
+        &depthDesc,
+        D3D12_RESOURCE_STATE_DEPTH_WRITE,
+        &clearValue,
+        IID_PPV_ARGS(m_DepthStencil.ReleaseAndGetAddressOf())
+    );
+
+    if (FAILED(result))
+    {
+        return false;
+    }
+
+    // DepthStencilViewの作成
+    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+    dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+    dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+    dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+    m_DepthStencilViewHandle = m_DepthStencilDecriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    m_Device->CreateDepthStencilView(
+        m_DepthStencil.Get(),
+        &dsvDesc,
+        m_DepthStencilViewHandle
+    );
 
     return true;
 }

@@ -1,5 +1,6 @@
 #include"../system/mywindow.h"
 #include"../directx/renderer.h"
+#include"../directx/test_mesh.h"
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
@@ -30,6 +31,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 		return 0;
 	}
 
+	TestMesh* test = new TestMesh();
+	test->Init();
+
 	MSG msg;
 	while (1)
 	{
@@ -48,9 +52,12 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 		else
 		{
 			renderer.DrawBegin();
+			test->Draw();
 			renderer.DrawEnd();
 		}
 	}
+
+	delete test;
 
 	// 終了処理
 	renderer.Uninit();
