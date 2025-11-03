@@ -5,6 +5,8 @@
 class TestMesh
 {
 public:
+	TestMesh(ID3D12Device* device, ID3D12GraphicsCommandList* commandList);
+
 	bool Init();
 	void Draw();
 private:
@@ -13,6 +15,9 @@ private:
 	bool CreateIndexBuffer();
 
 private:
+	ID3D12Device* m_Device = nullptr;
+	ID3D12GraphicsCommandList* m_CommandList = nullptr;
+
 	VertexPosUv m_Vertices[4];
 	unsigned short m_Indices[6];
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_VertexBuffer = nullptr;

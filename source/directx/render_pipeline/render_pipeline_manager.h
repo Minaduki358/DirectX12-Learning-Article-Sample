@@ -6,7 +6,8 @@
 class RenderPipelineManager 
 {
 public:
-    void Init(ID3D12Device* device, ID3D12GraphicsCommandList* commandList);
+    RenderPipelineManager(ID3D12Device* device, ID3D12GraphicsCommandList* commandList);
+
     bool CreatePipeline(const std::string& name, const RenderPipelineDescriptor& desc);
     bool SetPipeline(const std::string& name);
     RenderPipeline* GetPipeline(const std::string& name);

@@ -72,8 +72,7 @@ bool Renderer::Init()
 
     texture = m_TextureManager->LoadTexture(L"resources/texture/test.png");
 
-    m_RenderPipelineManager = std::make_unique<RenderPipelineManager>();
-    m_RenderPipelineManager->Init(m_Device.Get(), m_CommandList.Get());
+    m_RenderPipelineManager = std::make_unique<RenderPipelineManager>(m_Device.Get(), m_CommandList.Get());
 
     RenderPipelineDescriptor basicDesc;
     basicDesc.vsFilePath = L"source/directx/shader/basic_vs.hlsl";

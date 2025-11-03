@@ -1,9 +1,10 @@
 #include "render_pipeline_manager.h"
 
-void RenderPipelineManager::Init(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
+RenderPipelineManager::RenderPipelineManager(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
+    : m_Device(device)
+    , m_CommandList(commandList)
+    , m_CurrentPipeline(nullptr)
 {
-    m_Device = device;
-    m_CommandList = commandList;
 }
 
 bool RenderPipelineManager::CreatePipeline(const std::string& name, const RenderPipelineDescriptor& desc)

@@ -3,6 +3,12 @@
 
 using namespace DirectX;
 
+TestMesh::TestMesh(ID3D12Device* device, ID3D12GraphicsCommandList* commandList)
+	: m_Device(device)
+	, m_CommandList(commandList)
+{
+}
+
 bool TestMesh::Init()
 {
 	CreateMesh();
@@ -22,10 +28,9 @@ bool TestMesh::Init()
 
 void TestMesh::Draw()
 {
-	Renderer& renderer = Renderer::GetInstance();
-	renderer.GetCommandList()->IASetVertexBuffers(0, 1, &m_VertexBufferView);
-	renderer.GetCommandList()->IASetIndexBuffer(&m_IndexBufferView);
-	renderer.GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
+	m_CommandList->IASetVertexBuffers(0, 1, &m_VertexBufferView);
+	m_CommandList->IASetIndexBuffer(&m_IndexBufferView);
+	m_CommandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
 }
 
 void TestMesh::CreateMesh()
@@ -63,7 +68,7 @@ bool TestMesh::CreateVertexBuffer()
 	resdesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 	resdesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-	HRESULT result = Renderer::GetInstance().GetDevice()->CreateCommittedResource(
+	HRESULT result = m_Device->CreateCommittedResource(
 		&heapprop,
 		D3D12_HEAP_FLAG_NONE,
 		&resdesc,
@@ -117,7 +122,7 @@ bool TestMesh::CreateIndexBuffer()
 	resdesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 	resdesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-	HRESULT result = Renderer::GetInstance().GetDevice()->CreateCommittedResource(
+	HRESULT result = m_Device->CreateCommittedResource(
 		&heapprop,
 		D3D12_HEAP_FLAG_NONE,
 		&resdesc,

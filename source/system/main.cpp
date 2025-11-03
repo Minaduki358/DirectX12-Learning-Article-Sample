@@ -31,7 +31,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 		return 0;
 	}
 
-	TestMesh* test = new TestMesh();
+	TestMesh* test = new TestMesh(renderer.GetDevice(), renderer.GetCommandList());
 	test->Init();
 
 	MSG msg;
