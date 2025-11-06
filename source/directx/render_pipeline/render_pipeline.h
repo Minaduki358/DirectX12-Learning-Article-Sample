@@ -20,6 +20,7 @@ private:
     bool CreatePipelineState(ID3D12Device* device, const RenderPipelineDescriptor& desc);
 
     bool CreateDefaultRootSignature(ID3D12Device* device);
+
 private:
     Microsoft::WRL::ComPtr<ID3D12RootSignature> m_RootSignature;
     Microsoft::WRL::ComPtr<ID3D12PipelineState> m_PipelineState;

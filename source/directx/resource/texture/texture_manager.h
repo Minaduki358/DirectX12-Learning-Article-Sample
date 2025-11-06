@@ -2,6 +2,9 @@
 
 #include"texture.h"
 
+// 前方宣言
+class ResourceManager;
+
 class TextureManager
 {
 public:
@@ -9,7 +12,8 @@ public:
         ID3D12Device* device,
         ID3D12GraphicsCommandList* commandList,
         ID3D12CommandQueue* commandQueue,
-        ID3D12CommandAllocator* commandAllocator
+        ID3D12CommandAllocator* commandAllocator,
+        ResourceManager* resourceManager
     );
 
     bool Init();
@@ -17,18 +21,16 @@ public:
     Texture* LoadTexture(const std::wstring& fileName);
 
     /// <summary>
-    /// SRV用DescriptorHeapを取得
+    /// SRV用DescriptorHeapを取得（ResourceManagerから取得）
     /// </summary>
-    ID3D12DescriptorHeap* GetSRVDescriptorHeap() const { return m_SRVDescriptorHeap.Get(); }
+    ID3D12DescriptorHeap* GetSRVDescriptorHeap() const;
 
 private:
     ID3D12Device* m_Device = nullptr;
     ID3D12GraphicsCommandList* m_CommandList = nullptr;
     ID3D12CommandQueue* m_CommandQueue = nullptr;
     ID3D12CommandAllocator* m_CommandAllocator = nullptr;
+    ResourceManager* m_ResourceManager = nullptr; // ResourceManagerへの参照
 
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_SRVDescriptorHeap = nullptr; // SRV用
     std::unordered_map<std::wstring, std::unique_ptr<Texture>> m_Textures;
-    UINT m_CurrentDescriptorIndex = 0;
-    UINT m_DescriptorSize = 0; // Descriptorのサイズ
 };

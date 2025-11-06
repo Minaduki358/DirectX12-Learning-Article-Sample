@@ -1,51 +1,24 @@
 #include"texture_manager.h"
-
-namespace TextureManagerData
-{
-    /// <summary>
-    /// 最大のデスクリプター数
-    /// </summary>
-    UINT k_MaxDescriptorNum = 1000;
-}
+#include"../resource_manager.h"
 
 TextureManager::TextureManager(
     ID3D12Device* device,
     ID3D12GraphicsCommandList* commandList,
     ID3D12CommandQueue* commandQueue,
-    ID3D12CommandAllocator* commandAllocator
+    ID3D12CommandAllocator* commandAllocator,
+    ResourceManager* resourceManager
 )
     : m_Device(device)
     , m_CommandList(commandList)
     , m_CommandQueue(commandQueue)
     , m_CommandAllocator(commandAllocator)
+    , m_ResourceManager(resourceManager)
 {
 }
 
 bool TextureManager::Init()
 {
-    if (!m_Device)
-    {
-        return false;
-    }
-
-    // Descriptorサイズを取得
-    m_DescriptorSize = m_Device->GetDescriptorHandleIncrementSize(
-        D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
-    );
-
-    // SRV用DescriptorHeapを作成
-    D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-    heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-    heapDesc.NumDescriptors = TextureManagerData::k_MaxDescriptorNum;
-    heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE; // シェーダーからアクセス可能
-    heapDesc.NodeMask = 0;
-
-    HRESULT result = m_Device->CreateDescriptorHeap(
-        &heapDesc,
-        IID_PPV_ARGS(m_SRVDescriptorHeap.ReleaseAndGetAddressOf())
-    );
-
-    if (FAILED(result))
+    if (!m_Device || !m_ResourceManager)
     {
         return false;
     }
@@ -53,8 +26,22 @@ bool TextureManager::Init()
     return true;
 }
 
+ID3D12DescriptorHeap* TextureManager::GetSRVDescriptorHeap() const
+{
+    if (!m_ResourceManager)
+    {
+        return nullptr;
+    }
+    return m_ResourceManager->GetCBVSRVUAVHeap();
+}
+
 Texture* TextureManager::LoadTexture(const std::wstring& fileName)
 {
+    if (!m_ResourceManager)
+    {
+        return nullptr;
+    }
+
     // 1. 既に読み込まれているかチェック（キャッシュ確認）
     auto it = m_Textures.find(fileName);
     if (it != m_Textures.end())
@@ -62,10 +49,11 @@ Texture* TextureManager::LoadTexture(const std::wstring& fileName)
         return it->second.get(); // 既に読み込まれているテクスチャを返す
     }
 
-    // 2. 上限チェック
-    if (m_CurrentDescriptorIndex >= TextureManagerData::k_MaxDescriptorNum)
+    // 2. ResourceManagerからSRVデスクリプタを割り当て
+    ResourceManager::AllocationResult allocation = m_ResourceManager->AllocateSRV(1);
+    if (!allocation.success)
     {
-        // エラー: DescriptorHeapが満杯
+        // エラー: デスクリプタヒープが満杯
         return nullptr;
     }
 
@@ -84,8 +72,10 @@ Texture* TextureManager::LoadTexture(const std::wstring& fileName)
     }
 
     // 5. SRV（ShaderResourceView）を作成
-    // 現在のDescriptorIndexを使用
-    if (!texture->CreateShaderResourceView(m_SRVDescriptorHeap.Get(), m_CurrentDescriptorIndex, m_DescriptorSize))
+    // ResourceManagerから割り当てられたインデックスを使用
+    UINT descriptorSize = m_ResourceManager->GetDescriptorSize();
+    ID3D12DescriptorHeap* descriptorHeap = m_ResourceManager->GetCBVSRVUAVHeap();
+    if (!texture->CreateShaderResourceView(descriptorHeap, allocation.index, descriptorSize))
     {
         return nullptr; // SRV作成失敗
     }
@@ -93,9 +83,6 @@ Texture* TextureManager::LoadTexture(const std::wstring& fileName)
     // 6. テクスチャをマップに追加（所有権を移動）
     Texture* texturePtr = texture.get();
     m_Textures[fileName] = std::move(texture);
-
-    // 7. 次のDescriptorIndexに進む
-    m_CurrentDescriptorIndex++;
 
     return texturePtr; // 非所有のポインタを返す
 }

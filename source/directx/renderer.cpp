@@ -64,13 +64,55 @@ bool Renderer::Init()
         return false;
     }
 
-    m_TextureManager = std::make_unique<TextureManager>(m_Device.Get(), m_CommandList.Get(), m_CommandQueue.Get(), m_CommandAllocator.Get());
+    // ResourceManagerを先に初期化（デスクリプタヒープを作成）
+    m_ResourceManager = std::make_unique<ResourceManager>();
+    if (!m_ResourceManager->Init(m_Device.Get(), 1000))
+    {
+        return false;
+    }
+
+    // TextureManagerはResourceManagerを参照
+    m_TextureManager = std::make_unique<TextureManager>(
+        m_Device.Get(), 
+        m_CommandList.Get(), 
+        m_CommandQueue.Get(), 
+        m_CommandAllocator.Get(),
+        m_ResourceManager.get()
+    );
     if (m_TextureManager->Init() == false)
     {
         return false;
     }
 
     texture = m_TextureManager->LoadTexture(L"resources/texture/test.png");
+
+    // ConstantBufferManagerを作成
+    m_ConstantBufferManager = std::make_unique<ConstantBufferManager>(
+        m_Device.Get(),
+        m_ResourceManager.get()
+    );
+    if (!m_ConstantBufferManager->Init())
+    {
+        return false;
+    }
+
+    // カメラを作成
+    m_Camera = std::make_unique<Camera>();
+    m_Camera->SetPosition(DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f));
+    m_Camera->SetLookAt(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+    m_Camera->SetUp(DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f));
+    
+    // アスペクト比を計算
+    float aspectRatio = static_cast<float>(SystemData::k_ScreenWidth) / static_cast<float>(SystemData::k_ScreenHeight);
+    m_Camera->SetProjection(DirectX::XM_PI / 4.0f, aspectRatio, 0.1f, 100.0f);
+    m_Camera->SetModelMatrix(DirectX::XMMatrixIdentity());
+
+    // カメラデータ用のコンスタントバッファを作成
+    m_CameraConstantBuffer = m_ConstantBufferManager->CreateConstantBuffer(sizeof(CameraData));
+    if (!m_CameraConstantBuffer)
+    {
+        return false;
+    }
 
     m_RenderPipelineManager = std::make_unique<RenderPipelineManager>(m_Device.Get(), m_CommandList.Get());
 
@@ -81,10 +123,21 @@ bool Renderer::Init()
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
     };
-    // テクスチャ用のSRVパラメーターを追加
+    // カメラデータ用のCBVパラメーターを追加（ルートパラメータ0）
+    // DescriptorTableとして定義（SetGraphicsRootDescriptorTableを使用するため）
+    RootParameterDescriptor cameraDataParam;
+    cameraDataParam.type = RootParameterType::DescriptorTable;
+    cameraDataParam.shaderRegister = 0;  // b0
+    cameraDataParam.registerSpace = 0;
+    cameraDataParam.visibility = D3D12_SHADER_VISIBILITY_ALL;
+    cameraDataParam.rangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+    cameraDataParam.descriptorRangeCount = 1;
+    basicDesc.rootParameters.push_back(cameraDataParam);
+
+    // テクスチャ用のSRVパラメーターを追加（ルートパラメータ1）
     RootParameterDescriptor textureParam;
     textureParam.type = RootParameterType::DescriptorTable; 
-    textureParam.shaderRegister = 0;
+    textureParam.shaderRegister = 0;  // t0
     textureParam.registerSpace = 0;
     textureParam.visibility = D3D12_SHADER_VISIBILITY_PIXEL;
     textureParam.rangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -188,15 +241,34 @@ void Renderer::DrawBegin()
 
     m_RenderPipelineManager->SetPipeline("basic");
 
-    // SRV用DescriptorHeapを設定
-    ID3D12DescriptorHeap* descriptorHeaps[] = { m_TextureManager->GetSRVDescriptorHeap() };
+    // カメラの更新
+    m_Camera->Update();
+
+    // カメラデータを構造体にまとめる
+    CameraData cameraData;
+    cameraData.ModelMatrix = DirectX::XMMatrixTranspose(m_Camera->GetModelMatrix());
+    cameraData.ViewMatrix = DirectX::XMMatrixTranspose(m_Camera->GetViewMatrix());
+    cameraData.ProjectionMatrix = DirectX::XMMatrixTranspose(m_Camera->GetProjectionMatrix());
+
+    // コンスタントバッファにデータを書き込み
+    m_CameraConstantBuffer->UpdateData(&cameraData, sizeof(CameraData));
+
+    // ResourceManagerからデスクリプタヒープを設定
+    ID3D12DescriptorHeap* descriptorHeaps[] = { m_ResourceManager->GetCBVSRVUAVHeap() };
     m_CommandList->SetDescriptorHeaps(1, descriptorHeaps);
 
-    // テクスチャのSRVをルートパラメータ0に設定
+    // カメラデータのCBVをルートパラメータ0に設定
+    if (m_CameraConstantBuffer)
+    {
+        D3D12_GPU_DESCRIPTOR_HANDLE cameraHandle = m_CameraConstantBuffer->GetGPUDescriptorHandle();
+        m_CommandList->SetGraphicsRootDescriptorTable(0, cameraHandle);
+    }
+
+    // テクスチャのSRVをルートパラメータ1に設定
     if (texture)
     {
         D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = texture->GetGPUDescriptorHandle();
-        m_CommandList->SetGraphicsRootDescriptorTable(0, textureHandle);
+        m_CommandList->SetGraphicsRootDescriptorTable(1, textureHandle);
     }
 }
 

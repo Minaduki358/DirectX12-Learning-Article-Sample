@@ -79,25 +79,22 @@ bool RenderPipeline::CreateRootSignature(ID3D12Device* device, const RenderPipel
             break;
 
         case RootParameterType::DescriptorTable:
-        {
-            // 記述子テーブル（複数のテクスチャなど）
-            std::vector<D3D12_DESCRIPTOR_RANGE> ranges;
+            // 記述子テーブル
             D3D12_DESCRIPTOR_RANGE range = {};
             range.RangeType = paramDesc.rangeType;
             range.NumDescriptors = paramDesc.descriptorRangeCount;
             range.BaseShaderRegister = paramDesc.shaderRegister;
             range.RegisterSpace = paramDesc.registerSpace;
             range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-            ranges.push_back(range);
 
-            descriptorRanges.push_back(ranges);
+            descriptorRanges.push_back({range});
 
             rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-            rootParam.DescriptorTable.NumDescriptorRanges = static_cast<UINT>(ranges.size());
+            rootParam.DescriptorTable.NumDescriptorRanges = 1;
             rootParam.DescriptorTable.pDescriptorRanges = descriptorRanges.back().data();
             rootParam.ShaderVisibility = paramDesc.visibility;
             break;
-        }
+
         }
 
         rootParams.push_back(rootParam);

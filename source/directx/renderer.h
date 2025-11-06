@@ -2,8 +2,13 @@
 
 #include"../function/singleton.h"
 #include"render_pipeline/render_pipeline_manager.h"
-#include"texture/texture_manager.h"
-#include"texture/texture.h"
+#include"resource/resource_manager.h"
+#include"resource/texture/texture_manager.h"
+#include"resource/texture/texture.h"
+#include"camera/camera.h"
+#include"camera/camera_data.h"
+#include"resource/constant_buffer/constant_buffer_manager.h"
+#include"resource/constant_buffer/constant_buffer.h"
 
 /// <summary>
 /// 描画基盤クラス
@@ -124,7 +129,11 @@ private:
 	UINT64 m_FenceVal = 0;
 	HANDLE m_FenceEvent = nullptr;
 
+	std::unique_ptr<ResourceManager> m_ResourceManager;
 	std::unique_ptr<RenderPipelineManager> m_RenderPipelineManager;
 	std::unique_ptr<TextureManager> m_TextureManager;
+	std::unique_ptr<ConstantBufferManager> m_ConstantBufferManager;
+	std::unique_ptr<Camera> m_Camera;
+	ConstantBuffer* m_CameraConstantBuffer = nullptr;
 	Texture* texture;
 };

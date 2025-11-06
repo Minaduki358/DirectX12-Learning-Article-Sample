@@ -1,4 +1,15 @@
 
+// カメラデータ構造体
+struct CameraData
+{
+    matrix ModelMatrix;
+    matrix ViewMatrix;
+    matrix ProjectionMatrix;
+};
+
+// カメラデータ用のコンスタントバッファ（register b0）
+ConstantBuffer<CameraData> cameraBuffer : register(b0);
+
 struct Output
 {
     float4 svpos : SV_POSITION; // システム用頂点座標

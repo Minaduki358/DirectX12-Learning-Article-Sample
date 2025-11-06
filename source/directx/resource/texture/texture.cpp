@@ -148,6 +148,7 @@ bool Texture::UploadTextureToGPU()
 	// マップ
 	result = uploadBuff.Get()->Map(0, nullptr, (void**)&mapforImg);
 
+	// サイズをアライメントしているので合わせるために1行ごとにコピーする
 	auto srcAddress = img->pixels;
 	auto rowPitch = AlignmentedSize(img->rowPitch, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
 	for (int y = 0; y < img->height; ++y)

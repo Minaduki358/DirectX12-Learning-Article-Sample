@@ -1,0 +1,69 @@
+#pragma once
+
+#include <DirectXMath.h>
+
+/// <summary>
+/// カメラクラス
+/// </summary>
+class Camera
+{
+public:
+    Camera();
+    ~Camera();
+
+    /// <summary>
+    /// 位置を設定
+    /// </summary>
+    void SetPosition(const DirectX::XMFLOAT3& position);
+
+    /// <summary>
+    /// 注視点を設定
+    /// </summary>
+    void SetLookAt(const DirectX::XMFLOAT3& target);
+
+    /// <summary>
+    /// 上方向を設定
+    /// </summary>
+    void SetUp(const DirectX::XMFLOAT3& up);
+
+    /// <summary>
+    /// プロジェクション行列を設定
+    /// </summary>
+    void SetProjection(float fov, float aspect, float nearPlane, float farPlane);
+
+    /// <summary>
+    /// モデル行列を設定（ワールド変換用）
+    /// </summary>
+    void SetModelMatrix(const DirectX::XMMATRIX& modelMatrix);
+
+    /// <summary>
+    /// ビュー行列を取得
+    /// </summary>
+    DirectX::XMMATRIX GetViewMatrix() const { return m_ViewMatrix; }
+
+    /// <summary>
+    /// プロジェクション行列を取得
+    /// </summary>
+    DirectX::XMMATRIX GetProjectionMatrix() const { return m_ProjectionMatrix; }
+
+    /// <summary>
+    /// モデル行列を取得
+    /// </summary>
+    DirectX::XMMATRIX GetModelMatrix() const { return m_ModelMatrix; }
+
+    /// <summary>
+    /// カメラ行列を更新（ビュー行列を再計算）
+    /// </summary>
+    void Update();
+
+private:
+    DirectX::XMFLOAT3 m_Position;
+    DirectX::XMFLOAT3 m_Target;
+    DirectX::XMFLOAT3 m_Up;
+    DirectX::XMMATRIX m_ViewMatrix;
+    DirectX::XMMATRIX m_ProjectionMatrix;
+    DirectX::XMMATRIX m_ModelMatrix;
+    bool m_IsDirty;
+};
+
+
