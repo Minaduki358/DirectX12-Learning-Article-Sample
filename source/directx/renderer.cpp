@@ -74,9 +74,7 @@ bool Renderer::Init()
     // TextureManagerはResourceManagerを参照
     m_TextureManager = std::make_unique<TextureManager>(
         m_Device.Get(), 
-        m_CommandList.Get(), 
         m_CommandQueue.Get(), 
-        m_CommandAllocator.Get(),
         m_ResourceManager.get()
     );
     if (m_TextureManager->Init() == false)
@@ -193,13 +191,18 @@ void Renderer::Uninit()
 
 void Renderer::DrawBegin()
 {
-    // 前フレームのGPU完了を待つ
-    WaitForPreviousFrameGPU();
-
-    m_CommandAllocator->Reset();
-    m_CommandList->Reset(m_CommandAllocator.Get(), nullptr);
-
     UINT backBufferIndex = m_Swapchain->GetCurrentBackBufferIndex();
+    
+    // このバックバッファの前回の使用が完了するまで待つ（2フレーム前）
+    if (m_Fence->GetCompletedValue() < m_FenceValues[backBufferIndex])
+    {
+        m_Fence->SetEventOnCompletion(m_FenceValues[backBufferIndex], m_FenceEvent);
+        WaitForSingleObject(m_FenceEvent, INFINITE);
+    }
+    
+    // バックバッファに対応するCommandAllocatorをリセット
+    m_CommandAllocators[backBufferIndex]->Reset();
+    m_CommandList->Reset(m_CommandAllocators[backBufferIndex].Get(), nullptr);
 
     // Present → RenderTarget
     D3D12_RESOURCE_BARRIER barrierDesc = {};
@@ -290,7 +293,9 @@ void Renderer::DrawEnd()
     ID3D12CommandList* cmdLists[] = { m_CommandList.Get() };
     m_CommandQueue->ExecuteCommandLists(1, cmdLists);
 
+    // 現在のバックバッファにFence値を記録
     m_FenceVal++;
+    m_FenceValues[backBufferIndex] = m_FenceVal;
     m_CommandQueue->Signal(m_Fence.Get(), m_FenceVal);
 
     m_Swapchain->Present(1, 0);
@@ -382,14 +387,20 @@ bool Renderer::CreateDevice()
 
 bool Renderer::CreateCommandAllocator()
 {
-    HRESULT result = m_Device->CreateCommandAllocator(
-        D3D12_COMMAND_LIST_TYPE_DIRECT,
-        IID_PPV_ARGS(m_CommandAllocator.ReleaseAndGetAddressOf())
-    );
-
-    if (FAILED(result))
+    // バックバッファ数分のCommandAllocatorを作成（2つ）
+    m_CommandAllocators.resize(2);
+    
+    for (UINT i = 0; i < 2; i++)
     {
-        return false;
+        HRESULT result = m_Device->CreateCommandAllocator(
+            D3D12_COMMAND_LIST_TYPE_DIRECT,
+            IID_PPV_ARGS(m_CommandAllocators[i].ReleaseAndGetAddressOf())
+        );
+
+        if (FAILED(result))
+        {
+            return false;
+        }
     }
 
     return true;
@@ -400,7 +411,7 @@ bool Renderer::CreateCommandList()
     HRESULT result = m_Device->CreateCommandList(
         0,
         D3D12_COMMAND_LIST_TYPE_DIRECT,
-        m_CommandAllocator.Get(),
+        m_CommandAllocators[0].Get(),
         nullptr,
         IID_PPV_ARGS(m_CommandList.ReleaseAndGetAddressOf())
     );
@@ -634,7 +645,7 @@ bool Renderer::CreateDepthStencil()
 bool Renderer::CreateFence()
 {
     HRESULT result = m_Device->CreateFence(
-        m_FenceVal,
+        0,
         D3D12_FENCE_FLAG_NONE,
         IID_PPV_ARGS(m_Fence.ReleaseAndGetAddressOf())
     );
@@ -651,18 +662,9 @@ bool Renderer::CreateFence()
         return false;
     }
 
+    // 各フレームのFence値を初期化
+    m_FenceValues.resize(FRAME_COUNT, 0);
+    m_FenceVal = 0;
+
     return true;
-}
-
-void Renderer::WaitForPreviousFrameGPU()
-{
-    const UINT64 fenceValue = m_FenceVal;
-
-    // GPU完了値を確認
-    if (m_Fence->GetCompletedValue() < fenceValue)
-    {
-        // まだ完了していない場合は待機
-        m_Fence->SetEventOnCompletion(fenceValue, m_FenceEvent);
-        WaitForSingleObject(m_FenceEvent, INFINITE);
-    }
 }

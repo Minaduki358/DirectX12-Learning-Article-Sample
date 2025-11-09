@@ -104,16 +104,11 @@ private:
 	/// Fenceの作成
 	/// </summary>
 	bool CreateFence();
-
-	/// <summary>
-	/// 前フレームの描画処理の完了を待つ
-	/// </summary>
-	void WaitForPreviousFrameGPU();
 private:
 	Microsoft::WRL::ComPtr<IDXGIFactory6> m_DxgiFactory = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Device> m_Device = nullptr;
 
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CommandAllocator = nullptr;
+	std::vector<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> m_CommandAllocators;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_CommandList = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue = nullptr;
 
@@ -128,6 +123,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Fence> m_Fence = nullptr;
 	UINT64 m_FenceVal = 0;
 	HANDLE m_FenceEvent = nullptr;
+
+	static const UINT FRAME_COUNT = 2;
+	std::vector<UINT64> m_FenceValues; // 各フレームのFence値を個別管理
 
 	std::unique_ptr<ResourceManager> m_ResourceManager;
 	std::unique_ptr<RenderPipelineManager> m_RenderPipelineManager;

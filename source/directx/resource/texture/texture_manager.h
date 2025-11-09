@@ -10,9 +10,7 @@ class TextureManager
 public:
     TextureManager(
         ID3D12Device* device,
-        ID3D12GraphicsCommandList* commandList,
         ID3D12CommandQueue* commandQueue,
-        ID3D12CommandAllocator* commandAllocator,
         ResourceManager* resourceManager
     );
 
@@ -27,9 +25,9 @@ public:
 
 private:
     ID3D12Device* m_Device = nullptr;
-    ID3D12GraphicsCommandList* m_CommandList = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_CommandList = nullptr;
     ID3D12CommandQueue* m_CommandQueue = nullptr;
-    ID3D12CommandAllocator* m_CommandAllocator = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_CommandAllocator = nullptr;
     ResourceManager* m_ResourceManager = nullptr; // ResourceManagerへの参照
 
     std::unordered_map<std::wstring, std::unique_ptr<Texture>> m_Textures;

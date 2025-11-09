@@ -3,15 +3,11 @@
 
 TextureManager::TextureManager(
     ID3D12Device* device,
-    ID3D12GraphicsCommandList* commandList,
     ID3D12CommandQueue* commandQueue,
-    ID3D12CommandAllocator* commandAllocator,
     ResourceManager* resourceManager
 )
     : m_Device(device)
-    , m_CommandList(commandList)
     , m_CommandQueue(commandQueue)
-    , m_CommandAllocator(commandAllocator)
     , m_ResourceManager(resourceManager)
 {
 }
@@ -22,6 +18,34 @@ bool TextureManager::Init()
     {
         return false;
     }
+
+    // TextureManager専用のCommandAllocatorを作成
+    HRESULT result = m_Device->CreateCommandAllocator(
+        D3D12_COMMAND_LIST_TYPE_DIRECT,
+        IID_PPV_ARGS(m_CommandAllocator.ReleaseAndGetAddressOf())
+    );
+
+    if (FAILED(result))
+    {
+        return false;
+    }
+
+    // TextureManager専用のCommandListを作成
+    result = m_Device->CreateCommandList(
+        0,
+        D3D12_COMMAND_LIST_TYPE_DIRECT,
+        m_CommandAllocator.Get(),
+        nullptr,
+        IID_PPV_ARGS(m_CommandList.ReleaseAndGetAddressOf())
+    );
+
+    if (FAILED(result))
+    {
+        return false;
+    }
+
+    // CommandListは作成時に記録状態なので、一旦閉じる
+    m_CommandList->Close();
 
     return true;
 }
@@ -60,9 +84,9 @@ Texture* TextureManager::LoadTexture(const std::wstring& fileName)
     // 3. Textureインスタンスを作成
     auto texture = std::make_unique<Texture>(
         m_Device,
-        m_CommandList,
+        m_CommandList.Get(),
         m_CommandQueue,
-        m_CommandAllocator
+        m_CommandAllocator.Get()
     );
 
     // 4. テクスチャファイルを読み込んで初期化
