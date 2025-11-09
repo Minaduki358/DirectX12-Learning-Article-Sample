@@ -23,12 +23,35 @@ bool ConstantBuffer::Init(ID3D12Device* device, ResourceManager* resourceManager
         return false;
     }
 
+    // サイズが0の場合はエラー
+    if (size == 0)
+    {
+        OutputDebugStringW(L"[ConstantBuffer] Error: Size cannot be zero.\n");
+        return false;
+    }
+
+    // サイズが64KB（D3D12の上限）を超える場合はエラー
+    if (size > 65536)
+    {
+        OutputDebugStringW(L"[ConstantBuffer] Error: Size exceeds 64KB limit.\n");
+        return false;
+    }
+
     m_Device = device;
     m_ResourceManager = resourceManager;
 
     // DirectX12ではコンスタントバッファは256バイトアライメントが必要
-    // サイズを256バイトにアライメント
-    m_Size = (size + 255) & ~255;
+    // D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT (256バイト) にアライメント
+    m_Size = AlignmentHelper::Align256(size);
+
+    // デバッグビルドでアライメント検証
+#ifdef _DEBUG
+    if (!AlignmentHelper::Is256ByteAligned(m_Size))
+    {
+        OutputDebugStringW(L"[ConstantBuffer] Error: Alignment calculation failed.\n");
+        return false;
+    }
+#endif
 
     // ResourceManagerからCBVデスクリプタを割り当て
     ResourceManager::AllocationResult allocation = m_ResourceManager->AllocateCBV(1);
@@ -104,5 +127,12 @@ void ConstantBuffer::UpdateData(const void* data, UINT size)
     // マップされたメモリに直接コピー（GPUに自動的に転送される）
     UINT copySize = (size < m_Size) ? size : m_Size;
     memcpy(m_MappedData, data, copySize);
+
+    // 残りの領域をゼロクリア（パディング領域の初期化）
+    if (copySize < m_Size)
+    {
+        UINT remainingSize = m_Size - copySize;
+        memset(static_cast<BYTE*>(m_MappedData) + copySize, 0, remainingSize);
+    }
 }
 

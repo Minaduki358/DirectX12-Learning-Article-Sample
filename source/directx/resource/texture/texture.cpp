@@ -1,5 +1,4 @@
 #include"texture.h"
-#include"texture_helper.h"
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -85,38 +84,6 @@ bool Texture::UploadTextureToGPU()
 	// 生データ抽出
 	const Image* img = m_ScrachImage.GetImage(0, 0, 0);
 
-	// 中間バッファーとしてのアップロードヒープ設定
-	D3D12_HEAP_PROPERTIES uploadHeapProp = {};
-	uploadHeapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
-	uploadHeapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	uploadHeapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-	uploadHeapProp.CreationNodeMask = 0;
-	uploadHeapProp.VisibleNodeMask = 0;
-
-	D3D12_RESOURCE_DESC resDesc = {};
-	resDesc.Format = DXGI_FORMAT_UNKNOWN;
-	resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	resDesc.Alignment = 0;
-	resDesc.Width = AlignmentedSize(img->rowPitch, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT) * img->height;
-	resDesc.Height = 1;
-	resDesc.DepthOrArraySize = 1;
-	resDesc.MipLevels = 1;
-	resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	resDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-	resDesc.SampleDesc.Count = 1;
-	resDesc.SampleDesc.Quality = 0;
-
-	ComPtr <ID3D12Resource> uploadBuff = nullptr;
-	// 中間バッファー作成
-	HRESULT result = m_Device->CreateCommittedResource(
-		&uploadHeapProp,
-		D3D12_HEAP_FLAG_NONE,// 特になし
-		&resDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(uploadBuff.ReleaseAndGetAddressOf())
-	);
-
 	// テクスチャのためのヒープ設定
 	D3D12_HEAP_PROPERTIES texHeapProp = {};
 	texHeapProp.Type = D3D12_HEAP_TYPE_DEFAULT;// テクスチャ用
@@ -125,58 +92,122 @@ bool Texture::UploadTextureToGPU()
 	texHeapProp.CreationNodeMask = 0;
 	texHeapProp.VisibleNodeMask = 0;
 
-	// リソース設定(変数は使いまわし)
-	resDesc.Format = m_TextureMetadata.format;
-	resDesc.Width = m_TextureMetadata.width;
-	resDesc.Height = m_TextureMetadata.height;
-	resDesc.DepthOrArraySize = m_TextureMetadata.arraySize;
-	resDesc.MipLevels = m_TextureMetadata.mipLevels;
-	resDesc.Dimension = static_cast<D3D12_RESOURCE_DIMENSION>(m_TextureMetadata.dimension);
-	resDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	// テクスチャリソースの設定
+	D3D12_RESOURCE_DESC texDesc = {};
+	texDesc.Format = m_TextureMetadata.format;
+	texDesc.Width = m_TextureMetadata.width;
+	texDesc.Height = m_TextureMetadata.height;
+	texDesc.DepthOrArraySize = m_TextureMetadata.arraySize;
+	texDesc.MipLevels = m_TextureMetadata.mipLevels;
+	texDesc.Dimension = static_cast<D3D12_RESOURCE_DIMENSION>(m_TextureMetadata.dimension);
+	texDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	texDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc.Quality = 0;
+	texDesc.Alignment = 0;
 
 	// テクスチャバッファーの作成
-	result = m_Device->CreateCommittedResource(
+	HRESULT result = m_Device->CreateCommittedResource(
 		&texHeapProp,
 		D3D12_HEAP_FLAG_NONE,
-		&resDesc,
+		&texDesc,
 		D3D12_RESOURCE_STATE_COPY_DEST,
 		nullptr,
 		IID_PPV_ARGS(m_TextureBuffer.ReleaseAndGetAddressOf()));
 
-	// image->pixelsと同じ型にする
-	uint8_t* mapforImg = nullptr;
-	// マップ
-	result = uploadBuff.Get()->Map(0, nullptr, (void**)&mapforImg);
-
-	// サイズをアライメントしているので合わせるために1行ごとにコピーする
-	auto srcAddress = img->pixels;
-	auto rowPitch = AlignmentedSize(img->rowPitch, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
-	for (int y = 0; y < img->height; ++y)
+	if (FAILED(result))
 	{
-		std::copy_n(srcAddress, rowPitch, mapforImg);// コピー
-
-		// 1行ごとのつじつまを合わせる
-		srcAddress += img->rowPitch;
-		mapforImg += rowPitch;
+		return false;
 	}
 
-	uploadBuff.Get()->Unmap(0, nullptr);
+	// GetCopyableFootprintsを使用してレイアウト情報を取得
+	D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout = {};
+	UINT numRows = 0;
+	UINT64 rowSizeInBytes = 0;
+	UINT64 totalBytes = 0;
+
+	m_Device->GetCopyableFootprints(
+		&texDesc,           // テクスチャの情報
+		0,                  // 最初のサブリソース（ミップレベル0）
+		1,                  // サブリソース数（1つ）
+		0,                  // ベースオフセット
+		&layout,            // 出力: レイアウト情報
+		&numRows,           // 出力: 行数
+		&rowSizeInBytes,    // 出力: 1行のバイト数（実データ）
+		&totalBytes         // 出力: 必要な合計バイト数
+	);
+
+	// 中間バッファーとしてのアップロードヒープ設定
+	D3D12_HEAP_PROPERTIES uploadHeapProp = {};
+	uploadHeapProp.Type = D3D12_HEAP_TYPE_UPLOAD;
+	uploadHeapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	uploadHeapProp.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+	uploadHeapProp.CreationNodeMask = 0;
+	uploadHeapProp.VisibleNodeMask = 0;
+
+	D3D12_RESOURCE_DESC uploadBuffDesc = {};
+	uploadBuffDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	uploadBuffDesc.Alignment = 0;
+	uploadBuffDesc.Width = totalBytes;  // GetCopyableFootprintsで取得した値を使用
+	uploadBuffDesc.Height = 1;
+	uploadBuffDesc.DepthOrArraySize = 1;
+	uploadBuffDesc.MipLevels = 1;
+	uploadBuffDesc.Format = DXGI_FORMAT_UNKNOWN;
+	uploadBuffDesc.SampleDesc.Count = 1;
+	uploadBuffDesc.SampleDesc.Quality = 0;
+	uploadBuffDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	uploadBuffDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+	ComPtr<ID3D12Resource> uploadBuff = nullptr;
+	// 中間バッファー作成
+	result = m_Device->CreateCommittedResource(
+		&uploadHeapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&uploadBuffDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(uploadBuff.ReleaseAndGetAddressOf())
+	);
+
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// データのコピー（Mapして書き込み）
+	uint8_t* mapforImg = nullptr;
+	result = uploadBuff->Map(0, nullptr, (void**)&mapforImg);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	auto srcAddress = img->pixels;
+	auto dstRowPitch = layout.Footprint.RowPitch;  // GetCopyableFootprintsで取得した行ピッチ
+	auto srcRowPitch = img->rowPitch;               // 元画像の行ピッチ
+
+	for (UINT y = 0; y < numRows; ++y)  // GetCopyableFootprintsで取得した行数
+	{
+		// 実データだけをコピー
+		std::memcpy(mapforImg, srcAddress, srcRowPitch);
+
+		srcAddress += srcRowPitch;
+		mapforImg += dstRowPitch;
+	}
+
+	uploadBuff->Unmap(0, nullptr);
 
 	// コマンドリストを使う前にResetする
 	m_CommandAllocator->Reset();
 	m_CommandList->Reset(m_CommandAllocator, nullptr);
 
+	// コピー元の設定
 	D3D12_TEXTURE_COPY_LOCATION src = {};
-	//　コピー元
 	src.pResource = uploadBuff.Get();
 	src.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-	src.PlacedFootprint.Offset = 0;
-	src.PlacedFootprint.Footprint.Width = m_TextureMetadata.width;
-	src.PlacedFootprint.Footprint.Height = m_TextureMetadata.height;
-	src.PlacedFootprint.Footprint.Depth = m_TextureMetadata.depth;
-	src.PlacedFootprint.Footprint.RowPitch = AlignmentedSize(img->rowPitch, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
-	src.PlacedFootprint.Footprint.Format = img->format;
+	src.PlacedFootprint = layout;  // GetCopyableFootprintsで取得した情報をそのまま使用
 
+	// コピー先の設定
 	D3D12_TEXTURE_COPY_LOCATION dst = {};
 	dst.pResource = m_TextureBuffer.Get();
 	dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
@@ -207,11 +238,21 @@ bool Texture::UploadTextureToGPU()
 	UINT64 fenceValue = 1;
 	result = m_Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(fence.GetAddressOf()));
 
+	if (FAILED(result))
+	{
+		return false;
+	}
+
 	m_CommandQueue->Signal(fence.Get(), fenceValue);
 
 	if (fence->GetCompletedValue() < fenceValue)
 	{
 		HANDLE event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+		if (event == nullptr)
+		{
+			return false;
+		}
+
 		fence->SetEventOnCompletion(fenceValue, event);
 		WaitForSingleObject(event, INFINITE);
 		CloseHandle(event);

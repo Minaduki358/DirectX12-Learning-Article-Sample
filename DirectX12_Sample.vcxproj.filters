@@ -131,6 +131,9 @@
     <ClInclude Include="source\directx\texture\texture_helper.h">
       <Filter>directx\texture</Filter>
     </ClInclude>
+    <ClInclude Include="source\directx\alignment_helper.h">
+      <Filter>directx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="source\directx\shader\basic_vs.hlsl">

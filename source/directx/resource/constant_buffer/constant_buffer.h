@@ -2,6 +2,7 @@
 
 #include <d3d12.h>
 #include <wrl/client.h>
+#include "../../alignment_helper.h"
 
 // 前方宣言
 class ResourceManager;

@@ -166,6 +166,7 @@
     <ClCompile Include="source\system\mywindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="source\directx\alignment_helper.h" />
     <ClInclude Include="source\directx\renderer.h" />
     <ClInclude Include="source\directx\render_pipeline\render_pipeline.h" />
     <ClInclude Include="source\directx\render_pipeline\render_pipeline_descriptor.h" />

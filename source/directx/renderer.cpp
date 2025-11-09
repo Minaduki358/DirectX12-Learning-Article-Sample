@@ -107,8 +107,8 @@ bool Renderer::Init()
     m_Camera->SetProjection(DirectX::XM_PI / 4.0f, aspectRatio, 0.1f, 100.0f);
     m_Camera->SetModelMatrix(DirectX::XMMatrixIdentity());
 
-    // カメラデータ用のコンスタントバッファを作成
-    m_CameraConstantBuffer = m_ConstantBufferManager->CreateConstantBuffer(sizeof(CameraData));
+    // カメラデータ用のコンスタントバッファを作成（テンプレート版で型安全）
+    m_CameraConstantBuffer = m_ConstantBufferManager->CreateConstantBuffer<CameraData>();
     if (!m_CameraConstantBuffer)
     {
         return false;
