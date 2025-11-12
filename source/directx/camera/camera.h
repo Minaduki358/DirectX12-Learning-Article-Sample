@@ -1,6 +1,6 @@
 #pragma once
 
-#include <DirectXMath.h>
+#include"camera_data.h"
 
 /// <summary>
 /// カメラクラス
@@ -32,24 +32,19 @@ public:
     void SetProjection(float fov, float aspect, float nearPlane, float farPlane);
 
     /// <summary>
-    /// モデル行列を設定（ワールド変換用）
+    /// CameraDataを取得
     /// </summary>
-    void SetModelMatrix(const DirectX::XMMATRIX& modelMatrix);
+    const CameraData& GetCameraData() const { return m_CameraData; }
 
     /// <summary>
     /// ビュー行列を取得
     /// </summary>
-    DirectX::XMMATRIX GetViewMatrix() const { return m_ViewMatrix; }
+    DirectX::XMMATRIX GetViewMatrix() const { return m_CameraData.ViewMatrix; }
 
     /// <summary>
     /// プロジェクション行列を取得
     /// </summary>
-    DirectX::XMMATRIX GetProjectionMatrix() const { return m_ProjectionMatrix; }
-
-    /// <summary>
-    /// モデル行列を取得
-    /// </summary>
-    DirectX::XMMATRIX GetModelMatrix() const { return m_ModelMatrix; }
+    DirectX::XMMATRIX GetProjectionMatrix() const { return m_CameraData.ProjectionMatrix; }
 
     /// <summary>
     /// カメラ行列を更新（ビュー行列を再計算）
@@ -60,10 +55,7 @@ private:
     DirectX::XMFLOAT3 m_Position;
     DirectX::XMFLOAT3 m_Target;
     DirectX::XMFLOAT3 m_Up;
-    DirectX::XMMATRIX m_ViewMatrix;
-    DirectX::XMMATRIX m_ProjectionMatrix;
-    DirectX::XMMATRIX m_ModelMatrix;
+
+    CameraData m_CameraData;
     bool m_IsDirty;
 };
-
-

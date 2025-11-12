@@ -82,8 +82,6 @@ bool Renderer::Init()
         return false;
     }
 
-    texture = m_TextureManager->LoadTexture(L"resources/texture/test.png");
-
     // ConstantBufferManagerを作成
     m_ConstantBufferManager = std::make_unique<ConstantBufferManager>(
         m_Device.Get(),
@@ -94,24 +92,8 @@ bool Renderer::Init()
         return false;
     }
 
-    // カメラを作成
-    m_Camera = std::make_unique<Camera>();
-    m_Camera->SetPosition(DirectX::XMFLOAT3(0.0f, 0.0f, -5.0f));
-    m_Camera->SetLookAt(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-    m_Camera->SetUp(DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f));
-    
-    // アスペクト比を計算
-    float aspectRatio = static_cast<float>(SystemData::k_ScreenWidth) / static_cast<float>(SystemData::k_ScreenHeight);
-    m_Camera->SetProjection(DirectX::XM_PI / 4.0f, aspectRatio, 0.1f, 100.0f);
-    m_Camera->SetModelMatrix(DirectX::XMMatrixIdentity());
 
-    // カメラデータ用のコンスタントバッファを作成（テンプレート版で型安全）
-    m_CameraConstantBuffer = m_ConstantBufferManager->CreateConstantBuffer<CameraData>();
-    if (!m_CameraConstantBuffer)
-    {
-        return false;
-    }
-
+    // RenderPipelineManager作成
     m_RenderPipelineManager = std::make_unique<RenderPipelineManager>(m_Device.Get(), m_CommandList.Get());
 
     RenderPipelineDescriptor basicDesc;
@@ -241,38 +223,6 @@ void Renderer::DrawBegin()
     scissorRect.right = SystemData::k_ScreenWidth;
     scissorRect.bottom = SystemData::k_ScreenHeight;
     m_CommandList->RSSetScissorRects(1, &scissorRect);
-
-    m_RenderPipelineManager->SetPipeline("basic");
-
-    // カメラの更新
-    m_Camera->Update();
-
-    // カメラデータを構造体にまとめる
-    CameraData cameraData;
-    cameraData.ModelMatrix = DirectX::XMMatrixTranspose(m_Camera->GetModelMatrix());
-    cameraData.ViewMatrix = DirectX::XMMatrixTranspose(m_Camera->GetViewMatrix());
-    cameraData.ProjectionMatrix = DirectX::XMMatrixTranspose(m_Camera->GetProjectionMatrix());
-
-    // コンスタントバッファにデータを書き込み
-    m_CameraConstantBuffer->UpdateData(&cameraData, sizeof(CameraData));
-
-    // ResourceManagerからデスクリプタヒープを設定
-    ID3D12DescriptorHeap* descriptorHeaps[] = { m_ResourceManager->GetCBVSRVUAVHeap() };
-    m_CommandList->SetDescriptorHeaps(1, descriptorHeaps);
-
-    // カメラデータのCBVをルートパラメータ0に設定
-    if (m_CameraConstantBuffer)
-    {
-        D3D12_GPU_DESCRIPTOR_HANDLE cameraHandle = m_CameraConstantBuffer->GetGPUDescriptorHandle();
-        m_CommandList->SetGraphicsRootDescriptorTable(0, cameraHandle);
-    }
-
-    // テクスチャのSRVをルートパラメータ1に設定
-    if (texture)
-    {
-        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = texture->GetGPUDescriptorHandle();
-        m_CommandList->SetGraphicsRootDescriptorTable(1, textureHandle);
-    }
 }
 
 void Renderer::DrawEnd()
@@ -300,6 +250,26 @@ void Renderer::DrawEnd()
 
     m_Swapchain->Present(1, 0);
 }
+
+bool Renderer::CreatePipeline(const std::string& name, const RenderPipelineDescriptor& desc)
+{
+    return m_RenderPipelineManager->CreatePipeline(name, desc);
+}
+
+void Renderer::SetPipeline(const std::string& name)
+{
+    m_RenderPipelineManager->SetPipeline(name);
+}
+
+//const RenderContext Renderer::GetRenderContext()
+//{
+//    RenderContext renderContext = {};
+//    renderContext.constantBufferManager = m_ConstantBufferManager.get();
+//    renderContext.resourceManager = m_ResourceManager.get();
+//    renderContext.textureManager = m_TextureManager.get();
+//
+//    return renderContext;
+//}
 
 bool Renderer::CreateDXGI()
 {

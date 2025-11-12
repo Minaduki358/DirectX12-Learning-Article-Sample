@@ -28,8 +28,26 @@
     <Filter Include="directx\shader">
       <UniqueIdentifier>{0a4a41e3-ef88-4dc8-bba6-94fdd238c052}</UniqueIdentifier>
     </Filter>
-    <Filter Include="directx\texture">
-      <UniqueIdentifier>{570eb125-c063-47cf-aff6-94284bb469e6}</UniqueIdentifier>
+    <Filter Include="directx\resource">
+      <UniqueIdentifier>{7662c29f-6c29-4fa5-912f-8629027ea879}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="directx\resource\constant_buffer">
+      <UniqueIdentifier>{eda30765-8fc4-4f12-b36e-125951302ea6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="directx\resource\texture">
+      <UniqueIdentifier>{a8353d0f-2b73-4e28-b3f8-608c02019197}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="directx\render_pass">
+      <UniqueIdentifier>{692163db-992c-4c9a-a373-2c95c15b6e07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework">
+      <UniqueIdentifier>{21823521-ea5b-40fc-9c04-28cbc2f2ea74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework\scene">
+      <UniqueIdentifier>{efb6f072-6c7b-45f7-8308-2261c757a2fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="directx\camera">
+      <UniqueIdentifier>{130549b3-e8ca-431e-a5fd-cabd56a878b5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -69,17 +87,50 @@
     <ClCompile Include="source\directx\test_mesh.cpp">
       <Filter>directx</Filter>
     </ClCompile>
-    <ClCompile Include="source\directx\texture\texture.cpp">
-      <Filter>directx\texture</Filter>
-    </ClCompile>
-    <ClCompile Include="source\directx\texture\texture_manager.cpp">
-      <Filter>directx\texture</Filter>
-    </ClCompile>
     <ClCompile Include="source\directx\vertex_helper.cpp">
       <Filter>directx</Filter>
     </ClCompile>
-    <ClCompile Include="source\directx\texture\texture_helper.cpp">
-      <Filter>directx\texture</Filter>
+    <ClCompile Include="source\directx\resource\resource_manager.cpp">
+      <Filter>directx\resource</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\resource\constant_buffer\constant_buffer.cpp">
+      <Filter>directx\resource\constant_buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\resource\constant_buffer\constant_buffer_manager.cpp">
+      <Filter>directx\resource\constant_buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\resource\texture\texture_helper.cpp">
+      <Filter>directx\resource\texture</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\resource\texture\texture_manager.cpp">
+      <Filter>directx\resource\texture</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\resource\texture\texture.cpp">
+      <Filter>directx\resource\texture</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\renderpass\forward_render_pass.cpp">
+      <Filter>directx\render_pass</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\renderpass\gbuffer_render_pass.cpp">
+      <Filter>directx\render_pass</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\renderpass\render_contex.cpp">
+      <Filter>directx\render_pass</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\renderpass\render_pass.cpp">
+      <Filter>directx\render_pass</Filter>
+    </ClCompile>
+    <ClCompile Include="source\framework\scene\scene.cpp">
+      <Filter>framework\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="source\framework\scene\scene_manager.cpp">
+      <Filter>framework\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="source\framework\scene\forwardrender_test_scene.cpp">
+      <Filter>framework\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\camera\camera.cpp">
+      <Filter>directx\camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -119,20 +170,56 @@
     <ClInclude Include="source\directx\test_mesh.h">
       <Filter>directx</Filter>
     </ClInclude>
-    <ClInclude Include="source\directx\texture\texture.h">
-      <Filter>directx\texture</Filter>
-    </ClInclude>
-    <ClInclude Include="source\directx\texture\texture_manager.h">
-      <Filter>directx\texture</Filter>
-    </ClInclude>
     <ClInclude Include="source\directx\vertex_helper.h">
       <Filter>directx</Filter>
     </ClInclude>
-    <ClInclude Include="source\directx\texture\texture_helper.h">
-      <Filter>directx\texture</Filter>
-    </ClInclude>
     <ClInclude Include="source\directx\alignment_helper.h">
       <Filter>directx</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\resource\constant_buffer\constant_buffer.h">
+      <Filter>directx\resource\constant_buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\resource\constant_buffer\constant_buffer_manager.h">
+      <Filter>directx\resource\constant_buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\resource\resource_manager.h">
+      <Filter>directx\resource</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\resource\texture\texture_manager.h">
+      <Filter>directx\resource\texture</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\resource\texture\texture_helper.h">
+      <Filter>directx\resource\texture</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\resource\texture\texture.h">
+      <Filter>directx\resource\texture</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\renderpass\forward_render_pass.h">
+      <Filter>directx\render_pass</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\renderpass\gbuffer_render_pass.h">
+      <Filter>directx\render_pass</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\renderpass\render_context.h">
+      <Filter>directx\render_pass</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\renderpass\render_pass.h">
+      <Filter>directx\render_pass</Filter>
+    </ClInclude>
+    <ClInclude Include="source\framework\scene\scene.h">
+      <Filter>framework\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="source\framework\scene\scene_manager.h">
+      <Filter>framework\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="source\framework\scene\forwardrender_test_scene.h">
+      <Filter>framework\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\camera\camera.h">
+      <Filter>directx\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\camera\camera_data.h">
+      <Filter>directx\camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,6 +1,8 @@
 #include"../system/mywindow.h"
 #include"../directx/renderer.h"
 #include"../directx/test_mesh.h"
+#include"../framework/scene/scene_manager.h"
+#include"../framework/scene/forwardrender_test_scene.h"
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
@@ -19,6 +21,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	// インスタンス作成
 	MyWindow& myWindow = MyWindow::GetInstance();
 	Renderer& renderer = Renderer::GetInstance();
+	SceneManager& sceneManager = SceneManager::GetInstance();
 
 	// ウィンドウ生成
 	if (myWindow.Create() == false)
@@ -30,6 +33,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	{
 		return 0;
 	}
+
+	if (sceneManager.Init() == false)
+	{
+		return 0;
+	}
+
+	sceneManager.RegisterScene<ForwardRenderTestScene>("ForwardRenderTestScene");
+	sceneManager.RequestChangeScene("ForwardRenderTestScene");
 
 	TestMesh* test = new TestMesh(renderer.GetDevice(), renderer.GetCommandList());
 	test->Init();
@@ -51,8 +62,11 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 		}
 		else
 		{
+			sceneManager.Update();
 			renderer.DrawBegin();
+			sceneManager.DrawBegin();
 			test->Draw();
+			sceneManager.DrawEnd();
 			renderer.DrawEnd();
 		}
 	}
@@ -60,6 +74,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	delete test;
 
 	// 終了処理
+	sceneManager.Uninit();
 	renderer.Uninit();
 	myWindow.Uninit();
 

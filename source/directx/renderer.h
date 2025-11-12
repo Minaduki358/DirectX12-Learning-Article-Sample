@@ -9,6 +9,7 @@
 #include"camera/camera_data.h"
 #include"resource/constant_buffer/constant_buffer_manager.h"
 #include"resource/constant_buffer/constant_buffer.h"
+#include"renderpass/render_context.h"
 
 /// <summary>
 /// 描画基盤クラス
@@ -43,9 +44,27 @@ public:
 	/// </summary>
 	void DrawEnd();
 
+	/// <summary>
+	/// パイプラインの作成
+	/// </summary>
+	bool CreatePipeline(const std::string& name, const RenderPipelineDescriptor& desc);
+
+	/// <summary>
+	/// パイプラインのセット
+	/// </summary>
+	void SetPipeline(const std::string& name);
+
+	//const RenderContext GetRenderContext(); const
+
 	ID3D12Device* GetDevice() const { return m_Device.Get(); }
 
 	ID3D12GraphicsCommandList* GetCommandList() const { return m_CommandList.Get(); }
+
+	TextureManager* GetTextureManager() const { return m_TextureManager.get(); }
+
+	ConstantBufferManager* GetConstantBufferManager() const { return m_ConstantBufferManager.get(); }
+
+	ID3D12DescriptorHeap* GetCBVSRVUAVHeap() const { return m_ResourceManager->GetCBVSRVUAVHeap(); }
 private:
 
 	/// <summary>
@@ -131,7 +150,4 @@ private:
 	std::unique_ptr<RenderPipelineManager> m_RenderPipelineManager;
 	std::unique_ptr<TextureManager> m_TextureManager;
 	std::unique_ptr<ConstantBufferManager> m_ConstantBufferManager;
-	std::unique_ptr<Camera> m_Camera;
-	ConstantBuffer* m_CameraConstantBuffer = nullptr;
-	Texture* texture;
 };

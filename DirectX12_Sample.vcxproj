@@ -139,7 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="source\directx\camera\camera.cpp" />
     <ClCompile Include="source\directx\renderer.cpp" />
+    <ClCompile Include="source\directx\renderpass\forward_render_pass.cpp" />
+    <ClCompile Include="source\directx\renderpass\gbuffer_render_pass.cpp" />
+    <ClCompile Include="source\directx\renderpass\render_contex.cpp" />
+    <ClCompile Include="source\directx\renderpass\render_pass.cpp" />
     <ClCompile Include="source\directx\render_pipeline\render_pipeline.cpp" />
     <ClCompile Include="source\directx\render_pipeline\render_pipeline_descriptor.cpp" />
     <ClCompile Include="source\directx\render_pipeline\render_pipeline_manager.cpp" />
@@ -147,7 +152,6 @@
     <ClCompile Include="source\directx\render_pipeline\root_parameter_type.cpp" />
     <ClCompile Include="source\directx\resource\resource_manager.cpp" />
     <ClCompile Include="source\directx\shader\shader.cpp" />
-    <ClCompile Include="source\directx\camera\camera.cpp" />
     <ClCompile Include="source\directx\resource\constant_buffer\constant_buffer.cpp" />
     <ClCompile Include="source\directx\resource\constant_buffer\constant_buffer_manager.cpp" />
     <ClCompile Include="source\directx\test_mesh.cpp" />
@@ -155,6 +159,9 @@
     <ClCompile Include="source\directx\resource\texture\texture_helper.cpp" />
     <ClCompile Include="source\directx\resource\texture\texture_manager.cpp" />
     <ClCompile Include="source\directx\vertex_helper.cpp" />
+    <ClCompile Include="source\framework\scene\forwardrender_test_scene.cpp" />
+    <ClCompile Include="source\framework\scene\scene.cpp" />
+    <ClCompile Include="source\framework\scene\scene_manager.cpp" />
     <ClCompile Include="source\function\singleton.cpp" />
     <ClCompile Include="source\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -167,7 +174,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\directx\alignment_helper.h" />
+    <ClInclude Include="source\directx\camera\camera.h" />
     <ClInclude Include="source\directx\renderer.h" />
+    <ClInclude Include="source\directx\renderpass\forward_render_pass.h" />
+    <ClInclude Include="source\directx\renderpass\gbuffer_render_pass.h" />
+    <ClInclude Include="source\directx\renderpass\render_context.h" />
+    <ClInclude Include="source\directx\renderpass\render_pass.h" />
     <ClInclude Include="source\directx\render_pipeline\render_pipeline.h" />
     <ClInclude Include="source\directx\render_pipeline\render_pipeline_descriptor.h" />
     <ClInclude Include="source\directx\render_pipeline\render_pipeline_manager.h" />
@@ -175,7 +187,6 @@
     <ClInclude Include="source\directx\render_pipeline\root_parameter_type.h" />
     <ClInclude Include="source\directx\resource\resource_manager.h" />
     <ClInclude Include="source\directx\shader\shader.h" />
-    <ClInclude Include="source\directx\camera\camera.h" />
     <ClInclude Include="source\directx\camera\camera_data.h" />
     <ClInclude Include="source\directx\resource\constant_buffer\constant_buffer.h" />
     <ClInclude Include="source\directx\resource\constant_buffer\constant_buffer_manager.h" />
@@ -184,6 +195,9 @@
     <ClInclude Include="source\directx\resource\texture\texture_helper.h" />
     <ClInclude Include="source\directx\resource\texture\texture_manager.h" />
     <ClInclude Include="source\directx\vertex_helper.h" />
+    <ClInclude Include="source\framework\scene\forwardrender_test_scene.h" />
+    <ClInclude Include="source\framework\scene\scene.h" />
+    <ClInclude Include="source\framework\scene\scene_manager.h" />
     <ClInclude Include="source\function\singleton.h" />
     <ClInclude Include="source\stdafx.h" />
     <ClInclude Include="source\system\mywindow.h" />

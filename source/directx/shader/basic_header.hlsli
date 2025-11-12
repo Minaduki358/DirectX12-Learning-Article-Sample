@@ -2,7 +2,6 @@
 // カメラデータ構造体
 struct CameraData
 {
-    matrix ModelMatrix;
     matrix ViewMatrix;
     matrix ProjectionMatrix;
 };
