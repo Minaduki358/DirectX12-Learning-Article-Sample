@@ -44,21 +44,6 @@ bool Renderer::Init()
         return false;
     }
 
-    if (CreateBackBufferRenderTargetDecriptorHeap() == false)
-    {
-        return false;
-    }
-
-    if (CreateBackBufferRenderTarget() == false)
-    {
-        return false;
-    }
-
-    if (CreateDepthStencil() == false)
-    {
-        return false;
-    }
-
     if (CreateFence() == false)
     {
         return false;
@@ -87,11 +72,29 @@ bool Renderer::Init()
         m_Device.Get(),
         m_ResourceManager.get()
     );
-    if (!m_ConstantBufferManager->Init())
+    if (m_ConstantBufferManager->Init() == false)
     {
         return false;
     }
 
+    // RenderTextureManagerを作成
+    m_RenderTextureManager = std::make_unique<RenderTextureManager>(m_Device.Get(), m_ResourceManager.get());
+    if (m_RenderTextureManager->Init() == false)
+    {
+        return false;
+    }
+
+    // BackBufferの作成
+    if (CreateBackBufferRenderTargetAndDecriptorHeap() == false)
+    {
+        return false;
+    }
+
+    // DepthStencilの作成
+    if (CreateDepthStencil() == false)
+    {
+        return false;
+    }
 
     // RenderPipelineManager作成
     m_RenderPipelineManager = std::make_unique<RenderPipelineManager>(m_Device.Get(), m_CommandList.Get());
@@ -196,15 +199,15 @@ void Renderer::DrawBegin()
     barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
     m_CommandList->ResourceBarrier(1, &barrierDesc);
 
+    // ResourceManagerからRTVハンドルを取得
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_ResourceManager->GetRTVHandle(m_BackBufferRTVIndices[backBufferIndex]);
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = m_ResourceManager.get()->GetDSVHandle(m_DepthStencilViewIndices);
     // RenderTargetとDepthStencilを設定
-    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_BackBufferRenderTargetDecriptorHeap->GetCPUDescriptorHandleForHeapStart();
-    UINT rtvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-    rtvHandle.ptr += static_cast<SIZE_T>(backBufferIndex) * rtvDescriptorSize;
-    m_CommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &m_DepthStencilViewHandle);
+    m_CommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
     // クリア
     const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
     m_CommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-    m_CommandList->ClearDepthStencilView(m_DepthStencilViewHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+    m_CommandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
     // ビューポートの設定（フレーム開始時に1回）
     D3D12_VIEWPORT viewport = {};
@@ -472,29 +475,7 @@ bool Renderer::CreateSwapChain()
     return true;
 }
 
-bool Renderer::CreateBackBufferRenderTargetDecriptorHeap()
-{
-    D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-    heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-    heapDesc.NodeMask = 0;
-    // 表裏の2つ
-    heapDesc.NumDescriptors = 2;
-    heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-
-    HRESULT result = m_Device->CreateDescriptorHeap(
-        &heapDesc,
-        IID_PPV_ARGS(m_BackBufferRenderTargetDecriptorHeap.ReleaseAndGetAddressOf())
-    );
-
-    if (FAILED(result))
-    {
-        return false;
-    }
-
-    return true;
-}
-
-bool Renderer::CreateBackBufferRenderTarget()
+bool Renderer::CreateBackBufferRenderTargetAndDecriptorHeap()
 {
     DXGI_SWAP_CHAIN_DESC1 swcDesc = {};
     HRESULT result = m_Swapchain->GetDesc1(&swcDesc);
@@ -504,18 +485,21 @@ bool Renderer::CreateBackBufferRenderTarget()
         return false;
     }
 
+    auto allocation = m_ResourceManager->AllocateRTV(swcDesc.BufferCount);
+    if (allocation.success == false)
+    {
+        return false;
+    }
+
     D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
-    // ガンマ補正
     rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
     rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
-    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_BackBufferRenderTargetDecriptorHeap->GetCPUDescriptorHandleForHeapStart();
-    UINT rtvDescriptorSize = m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
     for (UINT i = 0; i < swcDesc.BufferCount; i++)
     {
         // SwapChainとRenderTargetを紐づける
         ComPtr<ID3D12Resource> resource;
-        HRESULT result = m_Swapchain->GetBuffer(i, IID_PPV_ARGS(resource.ReleaseAndGetAddressOf()));
+        result = m_Swapchain->GetBuffer(i, IID_PPV_ARGS(resource.ReleaseAndGetAddressOf()));
 
         if (FAILED(result))
         {
@@ -524,15 +508,19 @@ bool Renderer::CreateBackBufferRenderTarget()
 
         m_BackBufferRenderTargets.push_back(resource);
 
-        // RenderTargetの作成
+        // ResourceManagerからCPUハンドルを取得
+        UINT rtvIndex = allocation.index + i;
+        D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_ResourceManager->GetRTVHandle(rtvIndex);
+
+        // インデックスを保存
+        m_BackBufferRTVIndices.push_back(rtvIndex);
+
+        // RenderTargetViewを作成
         m_Device->CreateRenderTargetView(
             m_BackBufferRenderTargets[i].Get(),
             &rtvDesc,
             rtvHandle
         );
-
-        // ポインタをずらす
-        rtvHandle.ptr += rtvDescriptorSize;
     }
 
     return true;
@@ -540,23 +528,6 @@ bool Renderer::CreateBackBufferRenderTarget()
 
 bool Renderer::CreateDepthStencil()
 {
-    // DepthStencilView用のDescriptorHeapを作成
-    D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-    dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-    dsvHeapDesc.NodeMask = 0;
-    dsvHeapDesc.NumDescriptors = 1;
-    dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-
-    HRESULT result = m_Device->CreateDescriptorHeap(
-        &dsvHeapDesc,
-        IID_PPV_ARGS(m_DepthStencilDecriptorHeap.ReleaseAndGetAddressOf())
-    );
-
-    if (FAILED(result))
-    {
-        return false;
-    }
-
     // DepthStencilリソースの作成
     D3D12_RESOURCE_DESC depthDesc = {};
     depthDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -582,7 +553,7 @@ bool Renderer::CreateDepthStencil()
     heapProps.CreationNodeMask = 0;
     heapProps.VisibleNodeMask = 0;
 
-    result = m_Device->CreateCommittedResource(
+    HRESULT result = m_Device->CreateCommittedResource(
         &heapProps,
         D3D12_HEAP_FLAG_NONE,
         &depthDesc,
@@ -602,11 +573,20 @@ bool Renderer::CreateDepthStencil()
     dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
     dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
-    m_DepthStencilViewHandle = m_DepthStencilDecriptorHeap->GetCPUDescriptorHandleForHeapStart();
+    auto allocation = m_ResourceManager.get()->AllocateDSV(1);
+    if (allocation.success == false)
+    {
+        return false;
+    }
+
+    m_DepthStencilViewIndices = allocation.index;
+
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = m_ResourceManager.get()->GetDSVHandle(m_DepthStencilViewIndices);
+
     m_Device->CreateDepthStencilView(
         m_DepthStencil.Get(),
         &dsvDesc,
-        m_DepthStencilViewHandle
+        dsvHandle
     );
 
     return true;

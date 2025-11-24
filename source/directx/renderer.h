@@ -10,6 +10,7 @@
 #include"resource/constant_buffer/constant_buffer_manager.h"
 #include"resource/constant_buffer/constant_buffer.h"
 #include"renderpass/render_context.h"
+#include"resource/rendertexture/rendertexture_manager.h"
 
 /// <summary>
 /// 描画基盤クラス
@@ -107,7 +108,7 @@ private:
 	/// <summary>
 	/// BackBufferRenderTargetDecriptorHeapの作成
 	/// </summary>
-	bool CreateBackBufferRenderTargetDecriptorHeap();
+	bool CreateBackBufferRenderTargetAndDecriptorHeap();
 
 	/// <summary>
 	/// BackBufferRenderTargetの作成
@@ -132,12 +133,11 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_CommandQueue = nullptr;
 
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> m_Swapchain = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_BackBufferRenderTargetDecriptorHeap = nullptr;
+	std::vector<UINT> m_BackBufferRTVIndices;
 	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_BackBufferRenderTargets;
 
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DepthStencilDecriptorHeap = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_DepthStencil = nullptr;
-	D3D12_CPU_DESCRIPTOR_HANDLE m_DepthStencilViewHandle = {};
+	UINT m_DepthStencilViewIndices;
 
 	Microsoft::WRL::ComPtr<ID3D12Fence> m_Fence = nullptr;
 	UINT64 m_FenceVal = 0;
@@ -150,4 +150,5 @@ private:
 	std::unique_ptr<RenderPipelineManager> m_RenderPipelineManager;
 	std::unique_ptr<TextureManager> m_TextureManager;
 	std::unique_ptr<ConstantBufferManager> m_ConstantBufferManager;
+	std::unique_ptr<RenderTextureManager> m_RenderTextureManager;
 };

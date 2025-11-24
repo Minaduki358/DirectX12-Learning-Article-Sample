@@ -49,6 +49,9 @@
     <Filter Include="directx\camera">
       <UniqueIdentifier>{130549b3-e8ca-431e-a5fd-cabd56a878b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="directx\resource\rendertexture">
+      <UniqueIdentifier>{84e5cd0c-1fd7-4e0e-ba18-87828d7786d2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\system\main.cpp">
@@ -131,6 +134,18 @@
     </ClCompile>
     <ClCompile Include="source\directx\camera\camera.cpp">
       <Filter>directx\camera</Filter>
+    </ClCompile>
+    <ClCompile Include="source\framework\scene\deferredrender_test_scene.cpp">
+      <Filter>framework\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\renderpass\deferred_render_pass.cpp">
+      <Filter>directx\render_pass</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\resource\rendertexture\rendertexture.cpp">
+      <Filter>directx\resource\rendertexture</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\resource\rendertexture\rendertexture_manager.cpp">
+      <Filter>directx\resource\rendertexture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -221,6 +236,18 @@
     <ClInclude Include="source\directx\camera\camera_data.h">
       <Filter>directx\camera</Filter>
     </ClInclude>
+    <ClInclude Include="source\framework\scene\deferredrender_test_scene.h">
+      <Filter>framework\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\renderpass\deferred_render_pass.h">
+      <Filter>directx\render_pass</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\resource\rendertexture\rendertexture.h">
+      <Filter>directx\resource\rendertexture</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\resource\rendertexture\rendertexture_manager.h">
+      <Filter>directx\resource\rendertexture</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="source\directx\shader\basic_vs.hlsl">
@@ -229,9 +256,18 @@
     <FxCompile Include="source\directx\shader\basic_ps.hlsl">
       <Filter>directx\shader</Filter>
     </FxCompile>
+    <FxCompile Include="source\directx\shader\gbuffer_vs.hlsl">
+      <Filter>directx\shader</Filter>
+    </FxCompile>
+    <FxCompile Include="source\directx\shader\gbuffer_ps.hlsl">
+      <Filter>directx\shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="source\directx\shader\basic_header.hlsli">
+      <Filter>directx\shader</Filter>
+    </None>
+    <None Include="source\directx\shader\deferred_header.hlsli">
       <Filter>directx\shader</Filter>
     </None>
   </ItemGroup>

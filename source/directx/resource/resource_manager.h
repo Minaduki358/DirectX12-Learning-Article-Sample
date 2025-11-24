@@ -91,6 +91,38 @@ public:
     /// </summary>
     UINT GetTotalRemainingCount() const { return m_MaxDescriptors - m_CurrentIndex; }
 
+    ///----------------------------------------RTV&DSV---------------------------------------------------------///
+
+    /// <summary>
+    /// RTVヒープを取得
+    /// </summary>
+    ID3D12DescriptorHeap* GetRTVHeap() const { return m_RTVHeap.Get(); }
+
+    /// <summary>
+    /// DSVヒープを取得
+    /// </summary>
+    ID3D12DescriptorHeap* GetDSVHeap() const { return m_DSVHeap.Get(); }
+
+    /// <summary>
+    /// RTVデスクリプタを割り当て
+    /// </summary>
+    AllocationResult AllocateRTV(UINT count = 1);
+
+    /// <summary>
+    /// DSVデスクリプタを割り当て
+    /// </summary>
+    AllocationResult AllocateDSV(UINT count = 1);
+
+    /// <summary>
+    /// RTVのCPUハンドルを取得
+    /// </summary>
+    D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle(UINT index) const;
+
+    /// <summary>
+    /// DSVのCPUハンドルを取得
+    /// </summary>
+    D3D12_CPU_DESCRIPTOR_HANDLE GetDSVHandle(UINT index) const;
+
 private:
     /// <summary>
     /// タイプ別カウンター
@@ -115,5 +147,18 @@ private:
     TypeCounter m_SRVCounter;
     TypeCounter m_CBVCounter;
     TypeCounter m_UAVCounter;
+
+    ///----------------------------------------RTV&DSV---------------------------------------------------------///
+
+    // ★ 追加：RTVヒープとDSVヒープ ★
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RTVHeap = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DSVHeap = nullptr;
+
+    UINT m_RTVDescriptorSize = 0;
+    UINT m_DSVDescriptorSize = 0;
+    UINT m_RTVCurrentIndex = 0;
+    UINT m_DSVCurrentIndex = 0;
+    UINT m_MaxRTVDescriptors = 100;
+    UINT m_MaxDSVDescriptors = 100;
 };
 

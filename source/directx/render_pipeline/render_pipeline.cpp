@@ -207,8 +207,11 @@ bool RenderPipeline::CreatePipelineState(ID3D12Device* device, const RenderPipel
     psoDesc.DepthStencilState.StencilEnable = FALSE;
 
     // レンダーターゲット
-    psoDesc.NumRenderTargets = 1;
-    psoDesc.RTVFormats[0] = desc.rtvFormat;
+    psoDesc.NumRenderTargets = static_cast<UINT>(desc.rtvFormats.size());
+    for (UINT i = 0; i < psoDesc.NumRenderTargets && i < 8; i++)
+    {
+        psoDesc.RTVFormats[i] = desc.rtvFormats[i];
+    }
     psoDesc.DSVFormat = desc.dsvFormat;
 
     // サンプル設定

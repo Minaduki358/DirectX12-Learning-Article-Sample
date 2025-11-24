@@ -4,7 +4,7 @@
 
 struct RenderPipelineDescriptor
 {
-    // シェーダー設定（既存）
+    // シェーダー設定
     const wchar_t* vsFilePath = nullptr;
     const wchar_t* psFilePath = nullptr;
     const char* vsEntryPoint = "main";
@@ -12,19 +12,19 @@ struct RenderPipelineDescriptor
     const char* vsShaderModel = "vs_5_1";
     const char* psShaderModel = "ps_5_1";
 
-    // 入力レイアウト（既存）
+    // 入力レイアウト
     std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
 
-    // ★ ルートシグネチャ設定（新規）★
+    // ルートシグネチャ設定
     std::vector<RootParameterDescriptor> rootParameters;
     std::vector<D3D12_STATIC_SAMPLER_DESC> staticSamplers;
 
-    // ラスタライザー設定（既存）
+    // ラスタライザー設定
     D3D12_FILL_MODE fillMode = D3D12_FILL_MODE_SOLID;
     D3D12_CULL_MODE cullMode = D3D12_CULL_MODE_BACK;
     bool frontCounterClockwise = false;
 
-    // ブレンド設定（既存）
+    // ブレンド設定
     bool blendEnable = false;
     D3D12_BLEND srcBlend = D3D12_BLEND_ONE;
     D3D12_BLEND destBlend = D3D12_BLEND_ZERO;
@@ -33,16 +33,16 @@ struct RenderPipelineDescriptor
     D3D12_BLEND destBlendAlpha = D3D12_BLEND_ZERO;
     D3D12_BLEND_OP blendOpAlpha = D3D12_BLEND_OP_ADD;
 
-    // 深度ステンシル設定（既存）
+    // 深度ステンシル設定
     bool depthEnable = true;
     bool depthWriteEnable = true;
     D3D12_COMPARISON_FUNC depthFunc = D3D12_COMPARISON_FUNC_LESS;
 
-    // レンダーターゲット設定（既存）
-    DXGI_FORMAT rtvFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+    // レンダーターゲット設定
+    std::vector<DXGI_FORMAT> rtvFormats = { DXGI_FORMAT_R8G8B8A8_UNORM_SRGB };
     DXGI_FORMAT dsvFormat = DXGI_FORMAT_D32_FLOAT;
 
-    // プリミティブトポロジー（既存）
+    // プリミティブトポロジー
     D3D_PRIMITIVE_TOPOLOGY primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     D3D12_PRIMITIVE_TOPOLOGY_TYPE primitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 };
