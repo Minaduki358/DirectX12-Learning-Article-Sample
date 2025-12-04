@@ -26,16 +26,20 @@ bool Scene::InitRenderPass()
 
 void Scene::DrawBegin()
 {
+
+}
+
+void Scene::Draw()
+{
 	for (auto& renderPass : m_RenderPasses)
 	{
 		renderPass->DrawBegin();
+		renderPass->Execute();
+		renderPass->DrawEnd();
 	}
 }
 
 void Scene::DrawEnd()
 {
-	for (auto& renderPass : m_RenderPasses)
-	{
-		renderPass->DrawEnd();
-	}
+
 }

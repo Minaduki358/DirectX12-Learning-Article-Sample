@@ -31,7 +31,7 @@ RenderTexture* RenderTextureManager::CreateRenderTexture(const std::string& name
 	auto renderTexture = std::make_unique<RenderTexture>(m_Device);
 
     auto rtvAlloc = m_ResourceManager->AllocateRTV(1);
-    if (!rtvAlloc.success)
+    if (rtvAlloc.success == false)
     {
         return nullptr;
     }
@@ -52,7 +52,7 @@ RenderTexture* RenderTextureManager::CreateRenderTexture(const std::string& name
     if (createSRV)
     {
         auto srvAlloc = m_ResourceManager->AllocateSRV(1);
-        if (!srvAlloc.success)
+        if (srvAlloc.success == false)
         {
             return nullptr;
         }
@@ -72,6 +72,57 @@ RenderTexture* RenderTextureManager::CreateRenderTexture(const std::string& name
     return result;
 }
 
+DepthStencilTexture* RenderTextureManager::CreateDepthStencilTexture(const std::string name, UINT width, UINT height, DXGI_FORMAT format, bool createSRV)
+{
+    if (m_DepthStencilTextures.find(name) != m_DepthStencilTextures.end())
+    {
+        return m_DepthStencilTextures[name].get();
+    }
+
+    auto depthStencilTexture = std::make_unique<DepthStencilTexture>(m_Device);
+
+    auto dsvAlloc = m_ResourceManager->AllocateDSV(1);
+    if (dsvAlloc.success == false)
+    {
+        return nullptr;
+    }
+
+    // RenderTargetとして初期化
+    if (!depthStencilTexture->Init(
+        width,
+        height,
+        format,
+        m_ResourceManager->GetDSVHeap(),
+        dsvAlloc.index,
+        m_Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV)))
+    {
+        return nullptr;
+    }
+
+    // SRVも作成する場合
+    if (createSRV)
+    {
+        auto srvAlloc = m_ResourceManager->AllocateSRV(1);
+        if (!srvAlloc.success)
+        {
+            return nullptr;
+        }
+
+        if (!depthStencilTexture->CreateShaderResourceView(
+            m_ResourceManager->GetCBVSRVUAVHeap(),
+            srvAlloc.index,
+            m_ResourceManager->GetDescriptorSize()))
+        {
+            return nullptr;
+        }
+    }
+
+    DepthStencilTexture* result = depthStencilTexture.get();
+    m_DepthStencilTextures[name] = std::move(depthStencilTexture);
+
+    return result;
+}
+
 RenderTexture* RenderTextureManager::GetRenderTexture(const std::string& name)
 {
     auto it = m_RenderTextures.find(name);
@@ -79,10 +130,17 @@ RenderTexture* RenderTextureManager::GetRenderTexture(const std::string& name)
     {
         return it->second.get();
     }
+
     return nullptr;
 }
 
-void RenderTextureManager::RemoveRenderTexture(const std::string& name)
+DepthStencilTexture* RenderTextureManager::GetDepthStencilTexture(const std::string& name)
 {
-    m_RenderTextures.erase(name);
+    auto it = m_DepthStencilTextures.find(name);
+    if (it != m_DepthStencilTextures.end())
+    {
+        return it->second.get();
+    }
+
+    return nullptr;
 }

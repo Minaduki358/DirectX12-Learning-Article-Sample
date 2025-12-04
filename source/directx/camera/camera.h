@@ -59,3 +59,4 @@ private:
     CameraData m_CameraData;
     bool m_IsDirty;
 };
+

@@ -4,6 +4,7 @@
 #include"../resource/texture/texture.h"
 #include"../resource/constant_buffer/constant_buffer.h"
 #include"../resource/rendertexture/rendertexture.h"
+#include"../resource/rendertexture/depthstenciltexture.h"
 
 class DeferredRenderPass : public RenderPass
 {
@@ -13,6 +14,7 @@ public:
 
 	bool Init() override;
 	void DrawBegin() override;
+	void Execute() override;
 	void DrawEnd() override;
 
 private:
@@ -20,7 +22,10 @@ private:
 	ConstantBuffer* m_CameraConstantBuffer = nullptr;
 	Texture* m_Texture = nullptr;
 
-	// ★ MRT用のRenderTexture ★
-	std::unique_ptr<RenderTexture> m_ColorTarget;    // カラー
-	std::unique_ptr<RenderTexture> m_NormalTarget;   // 法線など
+	// MRT用のRenderTexture
+	RenderTexture* m_ColorTarget;
+	RenderTexture* m_NormalTarget;
+
+	// MRT用のDepthStencilTexture
+	DepthStencilTexture* m_DepthStencilTexture;
 };

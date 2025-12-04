@@ -142,8 +142,10 @@
     <ClCompile Include="source\directx\camera\camera.cpp" />
     <ClCompile Include="source\directx\renderer.cpp" />
     <ClCompile Include="source\directx\renderpass\deferred_render_pass.cpp" />
+    <ClCompile Include="source\directx\renderpass\final_blit_render_pass.cpp" />
     <ClCompile Include="source\directx\renderpass\forward_render_pass.cpp" />
     <ClCompile Include="source\directx\renderpass\gbuffer_render_pass.cpp" />
+    <ClCompile Include="source\directx\renderpass\lighting_render_pass.cpp" />
     <ClCompile Include="source\directx\renderpass\render_contex.cpp" />
     <ClCompile Include="source\directx\renderpass\render_pass.cpp" />
     <ClCompile Include="source\directx\render_pipeline\render_pipeline.cpp" />
@@ -151,6 +153,7 @@
     <ClCompile Include="source\directx\render_pipeline\render_pipeline_manager.cpp" />
     <ClCompile Include="source\directx\render_pipeline\root_parameter_descriptor.cpp" />
     <ClCompile Include="source\directx\render_pipeline\root_parameter_type.cpp" />
+    <ClCompile Include="source\directx\resource\rendertexture\depthstenciltexture.cpp" />
     <ClCompile Include="source\directx\resource\rendertexture\rendertexture.cpp" />
     <ClCompile Include="source\directx\resource\rendertexture\rendertexture_manager.cpp" />
     <ClCompile Include="source\directx\resource\resource_manager.cpp" />
@@ -181,8 +184,10 @@
     <ClInclude Include="source\directx\camera\camera.h" />
     <ClInclude Include="source\directx\renderer.h" />
     <ClInclude Include="source\directx\renderpass\deferred_render_pass.h" />
+    <ClInclude Include="source\directx\renderpass\final_blit_render_pass.h" />
     <ClInclude Include="source\directx\renderpass\forward_render_pass.h" />
     <ClInclude Include="source\directx\renderpass\gbuffer_render_pass.h" />
+    <ClInclude Include="source\directx\renderpass\lighting_render_pass.h" />
     <ClInclude Include="source\directx\renderpass\render_context.h" />
     <ClInclude Include="source\directx\renderpass\render_pass.h" />
     <ClInclude Include="source\directx\render_pipeline\render_pipeline.h" />
@@ -190,6 +195,7 @@
     <ClInclude Include="source\directx\render_pipeline\render_pipeline_manager.h" />
     <ClInclude Include="source\directx\render_pipeline\root_parameter_descriptor.h" />
     <ClInclude Include="source\directx\render_pipeline\root_parameter_type.h" />
+    <ClInclude Include="source\directx\resource\rendertexture\depthstenciltexture.h" />
     <ClInclude Include="source\directx\resource\rendertexture\rendertexture.h" />
     <ClInclude Include="source\directx\resource\rendertexture\rendertexture_manager.h" />
     <ClInclude Include="source\directx\resource\resource_manager.h" />
@@ -228,6 +234,22 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
     </FxCompile>
+    <FxCompile Include="source\directx\shader\final_blit_ps.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="source\directx\shader\final_blit_vs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+    </FxCompile>
     <FxCompile Include="source\directx\shader\gbuffer_vs.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
@@ -242,10 +264,28 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
+    <FxCompile Include="source\directx\shader\lgihting_vs.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="source\directx\shader\lighting_ps.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="source\directx\shader\basic_header.hlsli" />
     <None Include="source\directx\shader\deferred_header.hlsli" />
+    <None Include="source\directx\shader\final_blit_header.hlsli" />
+    <None Include="source\directx\shader\lighting_header.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

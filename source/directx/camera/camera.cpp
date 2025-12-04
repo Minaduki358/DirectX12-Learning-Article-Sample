@@ -51,3 +51,4 @@ void Camera::Update()
         m_IsDirty = false;
     }
 }
+

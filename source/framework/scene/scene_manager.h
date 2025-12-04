@@ -24,6 +24,8 @@ public:
 
 	void DrawBegin();
 
+	void Draw();
+
 	void DrawEnd();
 
 	/// <summary>

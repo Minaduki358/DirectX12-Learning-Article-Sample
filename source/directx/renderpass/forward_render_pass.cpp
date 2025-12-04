@@ -121,6 +121,10 @@ void ForwardRenderPass::DrawBegin()
     }
 }
 
+void ForwardRenderPass::Execute()
+{
+}
+
 void ForwardRenderPass::DrawEnd()
 {
 }

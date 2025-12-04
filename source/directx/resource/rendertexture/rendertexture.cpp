@@ -1,6 +1,7 @@
 #include"rendertexture.h"
 
 RenderTexture::RenderTexture(ID3D12Device* device)
+    :m_Device(device)
 {
 }
 
@@ -40,11 +41,12 @@ bool RenderTexture::Init(UINT width, UINT height, DXGI_FORMAT format, ID3D12Desc
     clearValue.Color[3] = 1.0f;
 
     // リソース作成
+    // バリア遷移の扱いを楽にするために初期状態はPIXEL_SHADER_RESOURCEにする
     HRESULT result = m_Device->CreateCommittedResource(
         &heapProps,
         D3D12_HEAP_FLAG_NONE,
         &resourceDesc,
-        D3D12_RESOURCE_STATE_RENDER_TARGET,
+        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
         &clearValue,
         IID_PPV_ARGS(m_Resource.ReleaseAndGetAddressOf())
     );

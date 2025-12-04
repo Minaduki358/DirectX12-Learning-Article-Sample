@@ -102,62 +102,99 @@ bool DeferredRenderPass::Init()
     samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     gbuffer.staticSamplers.push_back(samplerDesc);
 
+    gbuffer.rtvFormats = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM };
+
     if (renderer.CreatePipeline("gbuffer", gbuffer) == false)
     {
         return false;
     }
 
-    //// ★ MRT用のRTVDescriptorHeapを作成 ★
-    //D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-    //rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-    //rtvHeapDesc.NumDescriptors = 2;  // 2つのレンダーターゲット
-    //rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    //rtvHeapDesc.NodeMask = 0;
+    // MRT用のRTVDescriptorHeapを作成
+    RenderTextureManager* renderTextureManager = renderer.GetRenderTextureManager();
+    m_ColorTarget = renderTextureManager->CreateRenderTexture("ColorRenderTexture", SystemData::k_ScreenWidth, SystemData::k_ScreenHeight, DXGI_FORMAT_R8G8B8A8_UNORM);
+    m_NormalTarget = renderTextureManager->CreateRenderTexture("NormalRenderTexture", SystemData::k_ScreenWidth, SystemData::k_ScreenHeight, DXGI_FORMAT_R8G8B8A8_UNORM);
 
-    //HRESULT result = renderer.GetDevice()->CreateDescriptorHeap(
-    //    &rtvHeapDesc,
-    //    IID_PPV_ARGS(m_RTVHeap.ReleaseAndGetAddressOf())
-    //);
+    if (m_ColorTarget == nullptr || m_NormalTarget == nullptr)
+    {
+        return false;
+    }
 
-    //if (FAILED(result))
-    //{
-    //    return false;
-    //}
+    // MRT用のDSVDescriptorHeapを作成
+    m_DepthStencilTexture = renderTextureManager->CreateDepthStencilTexture("GBufferDepthStencil", SystemData::k_ScreenWidth, SystemData::k_ScreenHeight, DXGI_FORMAT_D32_FLOAT);
 
-    //UINT rtvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-    //// ★ RenderTextureを2つ作成 ★
-    //m_ColorTarget = std::make_unique<RenderTexture>(device);
-    //if (!m_ColorTarget->InitAsRenderTarget(
-    //    SystemData::k_ScreenWidth,
-    //    SystemData::k_ScreenHeight,
-    //    DXGI_FORMAT_R8G8B8A8_UNORM,
-    //    m_RTVHeap.Get(),
-    //    0,  // 最初のディスクリプタ
-    //    rtvDescriptorSize))
-    //{
-    //    return false;
-    //}
-
-    //m_NormalTarget = std::make_unique<RenderTexture>(device);
-    //if (!m_NormalTarget->InitAsRenderTarget(
-    //    SystemData::k_ScreenWidth,
-    //    SystemData::k_ScreenHeight,
-    //    DXGI_FORMAT_R16G16B16A16_FLOAT,  // 法線は高精度フォーマット
-    //    m_RTVHeap.Get(),
-    //    1,  // 2番目のディスクリプタ
-    //    rtvDescriptorSize))
-    //{
-    //    return false;
-    //}
-
+    if (m_DepthStencilTexture == nullptr)
+    {
+        return false;
+    }
 
 	return true;
 }
 
 void DeferredRenderPass::DrawBegin()
 {
+    Renderer& renderer = Renderer::GetInstance();
+    ID3D12GraphicsCommandList* commandList = renderer.GetCommandList();
 
+    renderer.SetPipeline("gbuffer");
+
+    const CameraData& cameraData = m_Camera->GetCameraData();
+    // コンスタントバッファにデータを書き込み
+    m_CameraConstantBuffer->UpdateData(&cameraData, sizeof(CameraData));
+
+    // ResourceManagerからデスクリプタヒープを設定
+    ID3D12DescriptorHeap* descriptorHeaps[] = { renderer.GetCBVSRVUAVHeap() };
+    commandList->SetDescriptorHeaps(1, descriptorHeaps);
+
+    // カメラデータのCBVをルートパラメータに設定
+    if (m_CameraConstantBuffer)
+    {
+        D3D12_GPU_DESCRIPTOR_HANDLE cameraHandle = m_CameraConstantBuffer->GetGPUDescriptorHandle();
+        commandList->SetGraphicsRootDescriptorTable(DeferredPipelineLayout::CAMERA_CBV, cameraHandle);
+    }
+
+    // テクスチャのSRVをルートパラメータに設定
+    if (m_Texture)
+    {
+        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = m_Texture->GetGPUDescriptorHandle();
+        commandList->SetGraphicsRootDescriptorTable(DeferredPipelineLayout::TEXTURE_CBV, textureHandle);
+    }
+
+    // MRT用のRTVハンドル配列を作成
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2] = {
+        m_ColorTarget->GetCPUDescriptorHandle(),
+        m_NormalTarget->GetCPUDescriptorHandle()
+    };
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = m_DepthStencilTexture->GetCPUDescriptorHandle();
+
+    // 複数のRenderTargetを設定
+    commandList->OMSetRenderTargets(2, rtvHandles, FALSE, &dsvHandle);
+
+    // 各RenderTargetをクリア
+    const float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    commandList->ClearRenderTargetView(rtvHandles[0], clearColor, 0, nullptr);
+    commandList->ClearRenderTargetView(rtvHandles[1], clearColor, 0, nullptr);
+
+    // ビューポートの設定（フレーム開始時に1回）
+    D3D12_VIEWPORT viewport = {};
+    viewport.Width = static_cast<float>(SystemData::k_ScreenWidth);
+    viewport.Height = static_cast<float>(SystemData::k_ScreenHeight);
+    viewport.TopLeftX = 0.0f;
+    viewport.TopLeftY = 0.0f;
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    commandList->RSSetViewports(1, &viewport);
+
+    // シザー矩形の設定（フレーム開始時に1回）
+    D3D12_RECT scissorRect = {};
+    scissorRect.left = 0;
+    scissorRect.top = 0;
+    scissorRect.right = SystemData::k_ScreenWidth;
+    scissorRect.bottom = SystemData::k_ScreenHeight;
+    commandList->RSSetScissorRects(1, &scissorRect);
+}
+
+void DeferredRenderPass::Execute()
+{
 }
 
 void DeferredRenderPass::DrawEnd()

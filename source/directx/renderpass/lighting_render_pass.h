@@ -5,20 +5,17 @@
 #include"../resource/constant_buffer/constant_buffer.h"
 #include"../resource/rendertexture/rendertexture.h"
 #include"../resource/rendertexture/depthstenciltexture.h"
-#include"../test_mesh.h"
 
-class GBufferRenderPass : public RenderPass
+class LightingRenderPass : public RenderPass
 {
 public:
-	GBufferRenderPass(const Camera* camera);
-	~GBufferRenderPass() override;
+	LightingRenderPass(const Camera* camera);
+	~LightingRenderPass() override;
 
 	bool Init() override;
 	void DrawBegin() override;
 	void Execute() override;
 	void DrawEnd() override;
-
-	void AddMesh(std::unique_ptr<TestMesh> testMesh);
 
 private:
 	ConstantBuffer* m_WorldMatrixConstantBuffer = nullptr;
@@ -26,11 +23,8 @@ private:
 	Texture* m_Texture = nullptr;
 
 	// MRT用のRenderTexture
-	RenderTexture* m_ColorTarget;
-	RenderTexture* m_NormalTarget;
+	RenderTexture* m_AlbedoTarget = nullptr;
+	RenderTexture* m_NormalTarget = nullptr;
 
-	// MRT用のDepthStencilTexture
-	DepthStencilTexture* m_DepthStencilTexture;
-
-	std::vector<std::unique_ptr<TestMesh>> m_TestMeshes;
+	RenderTexture* m_RenderTarget = nullptr;
 };

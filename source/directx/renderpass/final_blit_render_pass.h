@@ -1,14 +1,14 @@
 #pragma once
-
 #include"render_pass.h"
 #include"../resource/texture/texture.h"
 #include"../resource/constant_buffer/constant_buffer.h"
+#include"../resource/rendertexture/rendertexture.h"
 
-class ForwardRenderPass : public RenderPass
+class FinalBlitRenderPass : public RenderPass
 {
 public:
-	ForwardRenderPass(const Camera* camera);
-	~ForwardRenderPass() override;
+	FinalBlitRenderPass(const Camera* camera);
+	~FinalBlitRenderPass() override;
 
 	bool Init() override;
 	void DrawBegin() override;
@@ -16,6 +16,5 @@ public:
 	void DrawEnd() override;
 
 private:
-	ConstantBuffer* m_CameraConstantBuffer = nullptr;
-	Texture* m_Texture = nullptr;
+	RenderTexture* m_SourceTexture = nullptr;
 };

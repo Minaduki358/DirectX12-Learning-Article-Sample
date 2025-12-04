@@ -212,7 +212,9 @@ bool RenderPipeline::CreatePipelineState(ID3D12Device* device, const RenderPipel
     {
         psoDesc.RTVFormats[i] = desc.rtvFormats[i];
     }
-    psoDesc.DSVFormat = desc.dsvFormat;
+
+    // depthEnableがfalseの場合、DSVがnullでも動作するようにDSVFormatはUNKNOWNにする
+    psoDesc.DSVFormat = desc.depthEnable ? desc.dsvFormat : DXGI_FORMAT_UNKNOWN;
 
     // サンプル設定
     psoDesc.SampleDesc.Count = 1;

@@ -65,7 +65,21 @@ public:
 
 	ConstantBufferManager* GetConstantBufferManager() const { return m_ConstantBufferManager.get(); }
 
+	RenderTextureManager* GetRenderTextureManager() const { return m_RenderTextureManager.get(); }
+
 	ID3D12DescriptorHeap* GetCBVSRVUAVHeap() const { return m_ResourceManager->GetCBVSRVUAVHeap(); }
+
+	// public: セクションに追加
+	/// <summary>
+	/// 現在のバックバッファのRTVハンドルを取得
+	/// </summary>
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferRTVHandle() const;
+
+	/// <summary>
+	/// バックバッファ用のDSVハンドルを取得
+	/// </summary>
+	D3D12_CPU_DESCRIPTOR_HANDLE GetBackBufferDSVHandle() const;
+
 private:
 
 	/// <summary>
@@ -106,14 +120,9 @@ private:
 	bool CreateSwapChain();
 
 	/// <summary>
-	/// BackBufferRenderTargetDecriptorHeapの作成
+	/// BackBufferRenderTarget,DecriptorHeapの作成
 	/// </summary>
 	bool CreateBackBufferRenderTargetAndDecriptorHeap();
-
-	/// <summary>
-	/// BackBufferRenderTargetの作成
-	/// </summary>
-	bool CreateBackBufferRenderTarget();
 
 	/// <summary>
 	/// DepthStencilの作成
@@ -124,6 +133,7 @@ private:
 	/// Fenceの作成
 	/// </summary>
 	bool CreateFence();
+
 private:
 	Microsoft::WRL::ComPtr<IDXGIFactory6> m_DxgiFactory = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Device> m_Device = nullptr;
@@ -136,15 +146,14 @@ private:
 	std::vector<UINT> m_BackBufferRTVIndices;
 	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_BackBufferRenderTargets;
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> m_DepthStencil = nullptr;
-	UINT m_DepthStencilViewIndices;
+	DepthStencilTexture* m_DepthStencilTexture;
 
 	Microsoft::WRL::ComPtr<ID3D12Fence> m_Fence = nullptr;
 	UINT64 m_FenceVal = 0;
 	HANDLE m_FenceEvent = nullptr;
 
 	static const UINT FRAME_COUNT = 2;
-	std::vector<UINT64> m_FenceValues; // 各フレームのFence値を個別管理
+	std::vector<UINT64> m_FenceValues;
 
 	std::unique_ptr<ResourceManager> m_ResourceManager;
 	std::unique_ptr<RenderPipelineManager> m_RenderPipelineManager;

@@ -147,6 +147,15 @@
     <ClCompile Include="source\directx\resource\rendertexture\rendertexture_manager.cpp">
       <Filter>directx\resource\rendertexture</Filter>
     </ClCompile>
+    <ClCompile Include="source\directx\resource\rendertexture\depthstenciltexture.cpp">
+      <Filter>directx\resource\rendertexture</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\renderpass\lighting_render_pass.cpp">
+      <Filter>directx\render_pass</Filter>
+    </ClCompile>
+    <ClCompile Include="source\directx\renderpass\final_blit_render_pass.cpp">
+      <Filter>directx\render_pass</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\stdafx.h">
@@ -248,6 +257,15 @@
     <ClInclude Include="source\directx\resource\rendertexture\rendertexture_manager.h">
       <Filter>directx\resource\rendertexture</Filter>
     </ClInclude>
+    <ClInclude Include="source\directx\resource\rendertexture\depthstenciltexture.h">
+      <Filter>directx\resource\rendertexture</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\renderpass\lighting_render_pass.h">
+      <Filter>directx\render_pass</Filter>
+    </ClInclude>
+    <ClInclude Include="source\directx\renderpass\final_blit_render_pass.h">
+      <Filter>directx\render_pass</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="source\directx\shader\basic_vs.hlsl">
@@ -262,12 +280,30 @@
     <FxCompile Include="source\directx\shader\gbuffer_ps.hlsl">
       <Filter>directx\shader</Filter>
     </FxCompile>
+    <FxCompile Include="source\directx\shader\lighting_ps.hlsl">
+      <Filter>directx\shader</Filter>
+    </FxCompile>
+    <FxCompile Include="source\directx\shader\lgihting_vs.hlsl">
+      <Filter>directx\shader</Filter>
+    </FxCompile>
+    <FxCompile Include="source\directx\shader\final_blit_vs.hlsl">
+      <Filter>directx\shader</Filter>
+    </FxCompile>
+    <FxCompile Include="source\directx\shader\final_blit_ps.hlsl">
+      <Filter>directx\shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="source\directx\shader\basic_header.hlsli">
       <Filter>directx\shader</Filter>
     </None>
     <None Include="source\directx\shader\deferred_header.hlsli">
+      <Filter>directx\shader</Filter>
+    </None>
+    <None Include="source\directx\shader\lighting_header.hlsli">
+      <Filter>directx\shader</Filter>
+    </None>
+    <None Include="source\directx\shader\final_blit_header.hlsli">
       <Filter>directx\shader</Filter>
     </None>
   </ItemGroup>

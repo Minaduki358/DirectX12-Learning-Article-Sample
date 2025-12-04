@@ -10,6 +10,10 @@ public:
 
 	bool CreateShaderResourceView(ID3D12DescriptorHeap* srvHeap, UINT srvDescriptorIndex, UINT srvDescriptorSize);
 
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle() const { return m_RTVHandle; }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle() const { return m_SRVHandle; }
+	ID3D12Resource* GetResource() const { return m_Resource.Get(); }
+
 private:
 	ID3D12Device* m_Device = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_Resource = nullptr;

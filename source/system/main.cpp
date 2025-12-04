@@ -42,8 +42,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	sceneManager.RegisterScene<ForwardRenderTestScene>("ForwardRenderTestScene");
 	sceneManager.RequestChangeScene("ForwardRenderTestScene");
 
-	TestMesh* test = new TestMesh(renderer.GetDevice(), renderer.GetCommandList());
-	test->Init();
+	//TestMesh* test = new TestMesh(renderer.GetDevice(), renderer.GetCommandList());
+	//test->Init();
 
 	MSG msg;
 	while (1)
@@ -65,13 +65,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 			sceneManager.Update();
 			renderer.DrawBegin();
 			sceneManager.DrawBegin();
-			test->Draw();
+			sceneManager.Draw();
+			//test->Draw();
 			sceneManager.DrawEnd();
 			renderer.DrawEnd();
 		}
 	}
 
-	delete test;
+	//delete test;
 
 	// 終了処理
 	sceneManager.Uninit();

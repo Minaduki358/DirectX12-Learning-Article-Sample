@@ -1,6 +1,9 @@
 #include"deferred_header.hlsli"
 
-float4 main(Varyings IN) : SV_TARGET
+PSOutput main(Varyings IN)
 {
-    return float4(Texture.Sample(Sampler, IN.uv));
+    PSOutput output;
+    output.color = float4(Texture.Sample(Sampler, IN.uv));
+    output.normal = float4(1, 1, 1, 1);
+    return output;
 }
