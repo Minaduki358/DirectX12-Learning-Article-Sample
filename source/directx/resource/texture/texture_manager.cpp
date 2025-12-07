@@ -1,4 +1,4 @@
-#include"texture_manager.h"
+﻿#include"texture_manager.h"
 #include"../resource_manager.h"
 
 TextureManager::TextureManager(
@@ -66,22 +66,18 @@ Texture* TextureManager::LoadTexture(const std::wstring& fileName)
         return nullptr;
     }
 
-    // 1. 既に読み込まれているかチェック（キャッシュ確認）
     auto it = m_Textures.find(fileName);
     if (it != m_Textures.end())
     {
-        return it->second.get(); // 既に読み込まれているテクスチャを返す
+        return it->second.get();
     }
 
-    // 2. ResourceManagerからSRVデスクリプタを割り当て
     ResourceManager::AllocationResult allocation = m_ResourceManager->AllocateSRV(1);
     if (!allocation.success)
     {
-        // エラー: デスクリプタヒープが満杯
         return nullptr;
     }
 
-    // 3. Textureインスタンスを作成
     auto texture = std::make_unique<Texture>(
         m_Device,
         m_CommandList.Get(),
@@ -89,26 +85,22 @@ Texture* TextureManager::LoadTexture(const std::wstring& fileName)
         m_CommandAllocator.Get()
     );
 
-    // 4. テクスチャファイルを読み込んで初期化
     if (!texture->Init(fileName))
     {
-        return nullptr; // 読み込み失敗
+        return nullptr;
     }
 
-    // 5. SRV（ShaderResourceView）を作成
-    // ResourceManagerから割り当てられたインデックスを使用
     UINT descriptorSize = m_ResourceManager->GetDescriptorSize();
     ID3D12DescriptorHeap* descriptorHeap = m_ResourceManager->GetCBVSRVUAVHeap();
     if (!texture->CreateShaderResourceView(descriptorHeap, allocation.index, descriptorSize))
     {
-        return nullptr; // SRV作成失敗
+        return nullptr;
     }
 
-    // 6. テクスチャをマップに追加（所有権を移動）
     Texture* texturePtr = texture.get();
     m_Textures[fileName] = std::move(texture);
 
-    return texturePtr; // 非所有のポインタを返す
+    return texturePtr;
 }
 
 

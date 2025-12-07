@@ -1,4 +1,4 @@
-#include"renderer.h"
+﻿#include"renderer.h"
 #include"../system/mywindow.h"
 
 using namespace DirectX;
@@ -147,34 +147,6 @@ void Renderer::DrawBegin()
     barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
     barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
     m_CommandList->ResourceBarrier(1, &barrierDesc);
-
-    //// ResourceManagerからRTVハンドルを取得
-    //D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = m_ResourceManager->GetRTVHandle(m_BackBufferRTVIndices[backBufferIndex]);
-    //D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = m_DepthStencilTexture->GetCPUDescriptorHandle();
-    //// RenderTargetとDepthStencilを設定
-    //m_CommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
-    //// クリア
-    //const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
-    //m_CommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-    //m_CommandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
-    //// ビューポートの設定（フレーム開始時に1回）
-    //D3D12_VIEWPORT viewport = {};
-    //viewport.Width = static_cast<float>(SystemData::k_ScreenWidth);
-    //viewport.Height = static_cast<float>(SystemData::k_ScreenHeight);
-    //viewport.TopLeftX = 0.0f;
-    //viewport.TopLeftY = 0.0f;
-    //viewport.MinDepth = 0.0f;
-    //viewport.MaxDepth = 1.0f;
-    //m_CommandList->RSSetViewports(1, &viewport);
-
-    //// シザー矩形の設定（フレーム開始時に1回）
-    //D3D12_RECT scissorRect = {};
-    //scissorRect.left = 0;
-    //scissorRect.top = 0;
-    //scissorRect.right = SystemData::k_ScreenWidth;
-    //scissorRect.bottom = SystemData::k_ScreenHeight;
-    //m_CommandList->RSSetScissorRects(1, &scissorRect);
 }
 
 void Renderer::DrawEnd()

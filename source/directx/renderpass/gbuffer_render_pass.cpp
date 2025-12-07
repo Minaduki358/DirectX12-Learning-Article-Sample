@@ -77,7 +77,7 @@ bool GBufferRenderPass::Init()
     cameraDataParam.descriptorRangeCount = 1;
     gbuffer.rootParameters.push_back(cameraDataParam);
 
-    // テクスチャ用のSRVパラメーターを追加（ルートパラメータ1）
+    // テクスチャ用のSRVパラメーターを追加
     RootParameterDescriptor textureParam;
     textureParam.type = RootParameterType::DescriptorTable;
     textureParam.shaderRegister = GBufferPipelineLayout::TEXTURE_REGISTER;
