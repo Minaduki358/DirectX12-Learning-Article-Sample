@@ -52,9 +52,6 @@
     <Filter Include="directx\resource\rendertexture">
       <UniqueIdentifier>{84e5cd0c-1fd7-4e0e-ba18-87828d7786d2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="directx\resource\material">
-      <UniqueIdentifier>{4f7de2b9-1548-44b1-b535-1e106fbd8183}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\system\main.cpp">
