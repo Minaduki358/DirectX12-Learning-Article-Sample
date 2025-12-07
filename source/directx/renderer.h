@@ -52,7 +52,7 @@ public:
 	/// <summary>
 	/// パイプラインのセット
 	/// </summary>
-	void SetPipeline(const std::string& name);
+	bool SetPipeline(const std::string& name);
 
 	ID3D12Device* GetDevice() const { return m_Device.Get(); }
 

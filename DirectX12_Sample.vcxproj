@@ -151,6 +151,8 @@
     <ClCompile Include="source\directx\render_pipeline\render_pipeline_manager.cpp" />
     <ClCompile Include="source\directx\render_pipeline\root_parameter_descriptor.cpp" />
     <ClCompile Include="source\directx\render_pipeline\root_parameter_type.cpp" />
+    <ClCompile Include="source\directx\resource\material\material.cpp" />
+    <ClCompile Include="source\directx\resource\material\material_manager.cpp" />
     <ClCompile Include="source\directx\resource\rendertexture\depthstenciltexture.cpp" />
     <ClCompile Include="source\directx\resource\rendertexture\rendertexture.cpp" />
     <ClCompile Include="source\directx\resource\rendertexture\rendertexture_manager.cpp" />
@@ -191,6 +193,8 @@
     <ClInclude Include="source\directx\render_pipeline\render_pipeline_manager.h" />
     <ClInclude Include="source\directx\render_pipeline\root_parameter_descriptor.h" />
     <ClInclude Include="source\directx\render_pipeline\root_parameter_type.h" />
+    <ClInclude Include="source\directx\resource\material\material.h" />
+    <ClInclude Include="source\directx\resource\material\material_manager.h" />
     <ClInclude Include="source\directx\resource\rendertexture\depthstenciltexture.h" />
     <ClInclude Include="source\directx\resource\rendertexture\rendertexture.h" />
     <ClInclude Include="source\directx\resource\rendertexture\rendertexture_manager.h" />

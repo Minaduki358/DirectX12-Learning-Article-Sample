@@ -1,0 +1,36 @@
+# EditorConfig - https://editorconfig.org
+root = true
+
+# 全てのファイルに適用
+[*]
+charset = utf-8-bom
+end_of_line = crlf
+indent_style = tab
+indent_size = 4
+tab_width = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# C/C++ ソースファイル
+[*.{cpp,c,h,hpp,inl}]
+charset = utf-8-bom
+
+# HLSL シェーダーファイル
+[*.{hlsl,hlsli}]
+charset = utf-8-bom
+
+# XML/プロジェクトファイル
+[*.{xml,vcxproj,vcxproj.filters,props,targets}]
+charset = utf-8-bom
+indent_style = space
+indent_size = 2
+
+# JSON ファイル
+[*.json]
+charset = utf-8-bom
+indent_style = space
+indent_size = 2
+
+# Markdown ファイル
+[*.md]
+trim_trailing_whitespace = false

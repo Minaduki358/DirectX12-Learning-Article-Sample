@@ -208,9 +208,9 @@ bool Renderer::CreatePipeline(const std::string& name, const RenderPipelineDescr
     return m_RenderPipelineManager->CreatePipeline(name, desc);
 }
 
-void Renderer::SetPipeline(const std::string& name)
+bool Renderer::SetPipeline(const std::string& name)
 {
-    m_RenderPipelineManager->SetPipeline(name);
+    return m_RenderPipelineManager->SetPipeline(name);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE Renderer::GetCurrentBackBufferRTVHandle() const
