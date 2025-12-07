@@ -26,6 +26,8 @@ GBufferRenderPass::~GBufferRenderPass()
 
 bool GBufferRenderPass::Init()
 {
+    SetupDefaultViewportAndScissor();
+
     Renderer& renderer = Renderer::GetInstance();
 
     // ワールド行列用のコンスタントバッファを作成
@@ -134,6 +136,10 @@ bool GBufferRenderPass::Init()
     return true;
 }
 
+void GBufferRenderPass::Uninit()
+{
+}
+
 void GBufferRenderPass::DrawBegin()
 {
     Renderer& renderer = Renderer::GetInstance();
@@ -211,26 +217,14 @@ void GBufferRenderPass::DrawBegin()
     // 深度バッファをクリア
     commandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-    // ビューポートの設定（フレーム開始時に1回）
-    D3D12_VIEWPORT viewport = {};
-    viewport.Width = static_cast<float>(SystemData::k_ScreenWidth);
-    viewport.Height = static_cast<float>(SystemData::k_ScreenHeight);
-    viewport.TopLeftX = 0.0f;
-    viewport.TopLeftY = 0.0f;
-    viewport.MinDepth = 0.0f;
-    viewport.MaxDepth = 1.0f;
-    commandList->RSSetViewports(1, &viewport);
+    // ビューポート設定
+    commandList->RSSetViewports(1, &m_ViewPort);
 
-    // シザー矩形の設定（フレーム開始時に1回）
-    D3D12_RECT scissorRect = {};
-    scissorRect.left = 0;
-    scissorRect.top = 0;
-    scissorRect.right = SystemData::k_ScreenWidth;
-    scissorRect.bottom = SystemData::k_ScreenHeight;
-    commandList->RSSetScissorRects(1, &scissorRect);
+    // シザー矩形設定
+    commandList->RSSetScissorRects(1, &m_ScissorRec);
 }
 
-void GBufferRenderPass::Execute()
+void GBufferRenderPass::Draw()
 {
     for (auto& mesh : m_TestMeshes)
     {

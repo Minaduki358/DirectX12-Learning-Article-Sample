@@ -22,11 +22,7 @@ public:
 
 	void Update();
 
-	void DrawBegin();
-
 	void Draw();
-
-	void DrawEnd();
 
 	/// <summary>
 	/// シーンを登録

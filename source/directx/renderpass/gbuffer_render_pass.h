@@ -14,8 +14,9 @@ public:
 	~GBufferRenderPass() override;
 
 	bool Init() override;
+	void Uninit() override;
 	void DrawBegin() override;
-	void Execute() override;
+	void Draw() override;
 	void DrawEnd() override;
 
 	void AddMesh(std::unique_ptr<TestMesh> testMesh);

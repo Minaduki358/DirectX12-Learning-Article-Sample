@@ -31,27 +31,11 @@ void SceneManager::Update()
 	}
 }
 
-void SceneManager::DrawBegin()
-{
-	if (m_CurrentScene)
-	{
-		m_CurrentScene->DrawBegin();
-	}
-}
-
 void SceneManager::Draw()
 {
 	if (m_CurrentScene)
 	{
 		m_CurrentScene->Draw();
-	}
-}
-
-void SceneManager::DrawEnd()
-{
-	if (m_CurrentScene)
-	{
-		m_CurrentScene->DrawEnd();
 	}
 }
 

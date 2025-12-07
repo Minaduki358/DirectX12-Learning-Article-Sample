@@ -1,6 +1,5 @@
 #include"renderer.h"
 #include"../system/mywindow.h"
-#include "test_mesh.h"
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -90,14 +89,12 @@ bool Renderer::Init()
         return false;
     }
 
-    // DepthStencilの作成
-    if (CreateDepthStencil() == false)
+    // RenderPipelineManager作成
+    m_RenderPipelineManager = std::make_unique<RenderPipelineManager>(m_Device.Get(), m_CommandList.Get());
+    if (m_RenderPipelineManager == nullptr)
     {
         return false;
     }
-
-    // RenderPipelineManager作成
-    m_RenderPipelineManager = std::make_unique<RenderPipelineManager>(m_Device.Get(), m_CommandList.Get());
 
 	return true;
 }
@@ -216,25 +213,10 @@ void Renderer::SetPipeline(const std::string& name)
     m_RenderPipelineManager->SetPipeline(name);
 }
 
-//const RenderContext Renderer::GetRenderContext()
-//{
-//    RenderContext renderContext = {};
-//    renderContext.constantBufferManager = m_ConstantBufferManager.get();
-//    renderContext.resourceManager = m_ResourceManager.get();
-//    renderContext.textureManager = m_TextureManager.get();
-//
-//    return renderContext;
-//}
-
 D3D12_CPU_DESCRIPTOR_HANDLE Renderer::GetCurrentBackBufferRTVHandle() const
 {
     UINT backBufferIndex = m_Swapchain->GetCurrentBackBufferIndex();
     return m_ResourceManager->GetRTVHandle(m_BackBufferRTVIndices[backBufferIndex]);
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE Renderer::GetBackBufferDSVHandle() const
-{
-    return m_DepthStencilTexture->GetCPUDescriptorHandle();
 }
 
 bool Renderer::CreateDXGI()
@@ -484,24 +466,6 @@ bool Renderer::CreateBackBufferRenderTargetAndDecriptorHeap()
             &rtvDesc,
             rtvHandle
         );
-    }
-
-    return true;
-}
-
-bool Renderer::CreateDepthStencil()
-{
-    m_DepthStencilTexture = m_RenderTextureManager.get()->CreateDepthStencilTexture(
-        "BackBufferDepthStencil",
-        SystemData::k_ScreenWidth,
-        SystemData::k_ScreenHeight,
-        DXGI_FORMAT_D32_FLOAT,
-        false
-    );
-
-    if (m_DepthStencilTexture == nullptr)
-    {
-        return false;
     }
 
     return true;

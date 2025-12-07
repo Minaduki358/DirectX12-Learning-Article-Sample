@@ -9,7 +9,6 @@
 #include"camera/camera_data.h"
 #include"resource/constant_buffer/constant_buffer_manager.h"
 #include"resource/constant_buffer/constant_buffer.h"
-#include"renderpass/render_context.h"
 #include"resource/rendertexture/rendertexture_manager.h"
 
 /// <summary>
@@ -55,8 +54,6 @@ public:
 	/// </summary>
 	void SetPipeline(const std::string& name);
 
-	//const RenderContext GetRenderContext(); const
-
 	ID3D12Device* GetDevice() const { return m_Device.Get(); }
 
 	ID3D12GraphicsCommandList* GetCommandList() const { return m_CommandList.Get(); }
@@ -69,16 +66,10 @@ public:
 
 	ID3D12DescriptorHeap* GetCBVSRVUAVHeap() const { return m_ResourceManager->GetCBVSRVUAVHeap(); }
 
-	// public: セクションに追加
 	/// <summary>
 	/// 現在のバックバッファのRTVハンドルを取得
 	/// </summary>
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferRTVHandle() const;
-
-	/// <summary>
-	/// バックバッファ用のDSVハンドルを取得
-	/// </summary>
-	D3D12_CPU_DESCRIPTOR_HANDLE GetBackBufferDSVHandle() const;
 
 private:
 
@@ -125,11 +116,6 @@ private:
 	bool CreateBackBufferRenderTargetAndDecriptorHeap();
 
 	/// <summary>
-	/// DepthStencilの作成
-	/// </summary>
-	bool CreateDepthStencil();
-
-	/// <summary>
 	/// Fenceの作成
 	/// </summary>
 	bool CreateFence();
@@ -145,8 +131,6 @@ private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> m_Swapchain = nullptr;
 	std::vector<UINT> m_BackBufferRTVIndices;
 	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_BackBufferRenderTargets;
-
-	DepthStencilTexture* m_DepthStencilTexture;
 
 	Microsoft::WRL::ComPtr<ID3D12Fence> m_Fence = nullptr;
 	UINT64 m_FenceVal = 0;

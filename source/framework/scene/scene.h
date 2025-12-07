@@ -11,14 +11,13 @@ public:
 	virtual ~Scene();
 
 	bool InitRenderPass();
+	void UninitRenderPass();
 
 	virtual bool Init() = 0;
 	virtual void Uninit() = 0;
 	virtual void Update() = 0;
 
-	virtual void DrawBegin();
 	virtual void Draw();
-	virtual void DrawEnd();
 
 protected:
 	/// <summary>

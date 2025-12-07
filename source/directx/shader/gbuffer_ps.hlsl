@@ -1,4 +1,4 @@
-#include"deferred_header.hlsli"
+#include"gbuffer_header.hlsli"
 
 PSOutput main(Varyings IN)
 {

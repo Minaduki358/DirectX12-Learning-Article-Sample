@@ -150,7 +150,6 @@ private:
 
     ///----------------------------------------RTV&DSV---------------------------------------------------------///
 
-    // ★ 追加：RTVヒープとDSVヒープ ★
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RTVHeap = nullptr;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DSVHeap = nullptr;
 

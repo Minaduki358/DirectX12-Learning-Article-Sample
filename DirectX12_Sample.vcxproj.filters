@@ -117,9 +117,6 @@
     <ClCompile Include="source\directx\renderpass\gbuffer_render_pass.cpp">
       <Filter>directx\render_pass</Filter>
     </ClCompile>
-    <ClCompile Include="source\directx\renderpass\render_contex.cpp">
-      <Filter>directx\render_pass</Filter>
-    </ClCompile>
     <ClCompile Include="source\directx\renderpass\render_pass.cpp">
       <Filter>directx\render_pass</Filter>
     </ClCompile>
@@ -137,9 +134,6 @@
     </ClCompile>
     <ClCompile Include="source\framework\scene\deferredrender_test_scene.cpp">
       <Filter>framework\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="source\directx\renderpass\deferred_render_pass.cpp">
-      <Filter>directx\render_pass</Filter>
     </ClCompile>
     <ClCompile Include="source\directx\resource\rendertexture\rendertexture.cpp">
       <Filter>directx\resource\rendertexture</Filter>
@@ -224,9 +218,6 @@
     <ClInclude Include="source\directx\renderpass\gbuffer_render_pass.h">
       <Filter>directx\render_pass</Filter>
     </ClInclude>
-    <ClInclude Include="source\directx\renderpass\render_context.h">
-      <Filter>directx\render_pass</Filter>
-    </ClInclude>
     <ClInclude Include="source\directx\renderpass\render_pass.h">
       <Filter>directx\render_pass</Filter>
     </ClInclude>
@@ -247,9 +238,6 @@
     </ClInclude>
     <ClInclude Include="source\framework\scene\deferredrender_test_scene.h">
       <Filter>framework\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="source\directx\renderpass\deferred_render_pass.h">
-      <Filter>directx\render_pass</Filter>
     </ClInclude>
     <ClInclude Include="source\directx\resource\rendertexture\rendertexture.h">
       <Filter>directx\resource\rendertexture</Filter>
@@ -297,7 +285,7 @@
     <None Include="source\directx\shader\basic_header.hlsli">
       <Filter>directx\shader</Filter>
     </None>
-    <None Include="source\directx\shader\deferred_header.hlsli">
+    <None Include="source\directx\shader\gbuffer_header.hlsli">
       <Filter>directx\shader</Filter>
     </None>
     <None Include="source\directx\shader\lighting_header.hlsli">

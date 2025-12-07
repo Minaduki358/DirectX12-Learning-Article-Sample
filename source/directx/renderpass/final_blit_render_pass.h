@@ -11,8 +11,9 @@ public:
 	~FinalBlitRenderPass() override;
 
 	bool Init() override;
+	void Uninit() override;
 	void DrawBegin() override;
-	void Execute() override;
+	void Draw() override;
 	void DrawEnd() override;
 
 private:

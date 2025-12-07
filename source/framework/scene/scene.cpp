@@ -24,9 +24,12 @@ bool Scene::InitRenderPass()
 	return true;
 }
 
-void Scene::DrawBegin()
+void Scene::UninitRenderPass()
 {
-
+	for (auto& renderPass : m_RenderPasses)
+	{
+		renderPass->Uninit();
+	}
 }
 
 void Scene::Draw()
@@ -34,12 +37,7 @@ void Scene::Draw()
 	for (auto& renderPass : m_RenderPasses)
 	{
 		renderPass->DrawBegin();
-		renderPass->Execute();
+		renderPass->Draw();
 		renderPass->DrawEnd();
 	}
-}
-
-void Scene::DrawEnd()
-{
-
 }

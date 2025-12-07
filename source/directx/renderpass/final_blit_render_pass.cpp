@@ -21,6 +21,8 @@ FinalBlitRenderPass::~FinalBlitRenderPass()
 
 bool FinalBlitRenderPass::Init()
 {
+    SetupDefaultViewportAndScissor();
+
     Renderer& renderer = Renderer::GetInstance();
 
     m_SourceTexture = renderer.GetRenderTextureManager()->GetRenderTexture("LightingResult");
@@ -73,6 +75,11 @@ bool FinalBlitRenderPass::Init()
 	return true;
 }
 
+void FinalBlitRenderPass::Uninit()
+{
+
+}
+
 void FinalBlitRenderPass::DrawBegin()
 {
     Renderer& renderer = Renderer::GetInstance();
@@ -94,22 +101,16 @@ void FinalBlitRenderPass::DrawBegin()
     commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
     // ビューポート設定
-    D3D12_VIEWPORT viewport = {};
-    viewport.Width = static_cast<float>(SystemData::k_ScreenWidth);
-    viewport.Height = static_cast<float>(SystemData::k_ScreenHeight);
-    viewport.TopLeftX = 0.0f;
-    viewport.TopLeftY = 0.0f;
-    viewport.MinDepth = 0.0f;
-    viewport.MaxDepth = 1.0f;
-    commandList->RSSetViewports(1, &viewport);
+    commandList->RSSetViewports(1, &m_ViewPort);
 
     // シザー矩形設定
-    D3D12_RECT scissorRect = {};
-    scissorRect.left = 0;
-    scissorRect.top = 0;
-    scissorRect.right = SystemData::k_ScreenWidth;
-    scissorRect.bottom = SystemData::k_ScreenHeight;
-    commandList->RSSetScissorRects(1, &scissorRect);
+    commandList->RSSetScissorRects(1, &m_ScissorRec);
+}
+
+void FinalBlitRenderPass::Draw()
+{
+    Renderer& renderer = Renderer::GetInstance();
+    ID3D12GraphicsCommandList* commandList = renderer.GetCommandList();
 
     // ソーステクスチャをSRVとしてバインド
     if (m_SourceTexture)
@@ -121,10 +122,6 @@ void FinalBlitRenderPass::DrawBegin()
     // フルスクリーン三角形を描画
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     commandList->DrawInstanced(3, 1, 0, 0);
-}
-
-void FinalBlitRenderPass::Execute()
-{
 }
 
 void FinalBlitRenderPass::DrawEnd()

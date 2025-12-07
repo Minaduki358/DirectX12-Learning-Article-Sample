@@ -3,18 +3,13 @@
 
 namespace LightingPipelineLayout
 {
-    // シェーダーレジスタ
-    constexpr UINT WORLDMATRIX_REGISTER = 0;      // b0
-    constexpr UINT CAMERA_REGISTER = 1;      // b1
-    constexpr UINT TEXTURE_REGISTER = 0;    // t0
-
     // ルートパラメーターのインデックス
     constexpr UINT ALBEDO_CBV = 0;
     constexpr UINT NORMAL_CBV = 1;
 
     // シェーダーレジスタ
-    constexpr UINT ALBEDO_TEXTURE_REGISTER = 0;      // b0
-    constexpr UINT NORMAL_TEXTURE_REGISTER = 1;      // b1
+    constexpr UINT ALBEDO_TEXTURE_REGISTER = 0;      // t0
+    constexpr UINT NORMAL_TEXTURE_REGISTER = 1;      // t1
 }
 
 
@@ -29,6 +24,8 @@ LightingRenderPass::~LightingRenderPass()
 
 bool LightingRenderPass::Init()
 {
+    SetupDefaultViewportAndScissor();
+
 	Renderer& renderer = Renderer::GetInstance();
 
     RenderPipelineDescriptor lighting;
@@ -60,9 +57,9 @@ bool LightingRenderPass::Init()
     // 静的サンプラーを追加
     D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
     samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-    samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-    samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-    samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+    samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+    samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
     samplerDesc.MipLODBias = 0;
     samplerDesc.MaxAnisotropy = 1;
     samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
@@ -105,6 +102,10 @@ bool LightingRenderPass::Init()
 	return true;
 }
 
+void LightingRenderPass::Uninit()
+{
+}
+
 void LightingRenderPass::DrawBegin()
 {
     Renderer& renderer = Renderer::GetInstance();
@@ -137,22 +138,16 @@ void LightingRenderPass::DrawBegin()
     commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
     // ビューポート設定
-    D3D12_VIEWPORT viewport = {};
-    viewport.Width = static_cast<float>(SystemData::k_ScreenWidth);
-    viewport.Height = static_cast<float>(SystemData::k_ScreenHeight);
-    viewport.TopLeftX = 0.0f;
-    viewport.TopLeftY = 0.0f;
-    viewport.MinDepth = 0.0f;
-    viewport.MaxDepth = 1.0f;
-    commandList->RSSetViewports(1, &viewport);
+    commandList->RSSetViewports(1, &m_ViewPort);
 
     // シザー矩形設定
-    D3D12_RECT scissorRect = {};
-    scissorRect.left = 0;
-    scissorRect.top = 0;
-    scissorRect.right = SystemData::k_ScreenWidth;
-    scissorRect.bottom = SystemData::k_ScreenHeight;
-    commandList->RSSetScissorRects(1, &scissorRect);
+    commandList->RSSetScissorRects(1, &m_ScissorRec);
+}
+
+void LightingRenderPass::Draw()
+{
+    Renderer& renderer = Renderer::GetInstance();
+    ID3D12GraphicsCommandList* commandList = renderer.GetCommandList();
 
     // GBufferテクスチャをバインド
     if (m_AlbedoTarget)
@@ -170,10 +165,6 @@ void LightingRenderPass::DrawBegin()
     // フルスクリーン三角形を描画
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     commandList->DrawInstanced(3, 1, 0, 0);
-}
-
-void LightingRenderPass::Execute()
-{
 }
 
 void LightingRenderPass::DrawEnd()

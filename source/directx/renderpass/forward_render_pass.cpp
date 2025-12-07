@@ -24,6 +24,19 @@ ForwardRenderPass::~ForwardRenderPass()
 
 bool ForwardRenderPass::Init()
 {
+    // ビューポート設定
+    m_ViewPort.Width = static_cast<float>(SystemData::k_ScreenWidth);
+    m_ViewPort.Height = static_cast<float>(SystemData::k_ScreenHeight);
+    m_ViewPort.TopLeftX = 0.0f;
+    m_ViewPort.TopLeftY = 0.0f;
+    m_ViewPort.MinDepth = 0.0f;
+
+    // シザー矩形設定
+    m_ScissorRec.left = 0;
+    m_ScissorRec.top = 0;
+    m_ScissorRec.right = SystemData::k_ScreenWidth;
+    m_ScissorRec.bottom = SystemData::k_ScreenHeight;
+
 	Renderer& renderer = Renderer::GetInstance();
 
     // カメラデータ用のコンスタントバッファを作成
@@ -92,6 +105,10 @@ bool ForwardRenderPass::Init()
 	return true;
 }
 
+void ForwardRenderPass::Uninit()
+{
+}
+
 void ForwardRenderPass::DrawBegin()
 {
     Renderer& renderer = Renderer::GetInstance();
@@ -121,7 +138,7 @@ void ForwardRenderPass::DrawBegin()
     }
 }
 
-void ForwardRenderPass::Execute()
+void ForwardRenderPass::Draw()
 {
 }
 

@@ -13,15 +13,12 @@ public:
 	~LightingRenderPass() override;
 
 	bool Init() override;
+	void Uninit() override;
 	void DrawBegin() override;
-	void Execute() override;
+	void Draw() override;
 	void DrawEnd() override;
 
 private:
-	ConstantBuffer* m_WorldMatrixConstantBuffer = nullptr;
-	ConstantBuffer* m_CameraConstantBuffer = nullptr;
-	Texture* m_Texture = nullptr;
-
 	// MRT用のRenderTexture
 	RenderTexture* m_AlbedoTarget = nullptr;
 	RenderTexture* m_NormalTarget = nullptr;
