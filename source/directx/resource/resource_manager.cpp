@@ -52,7 +52,7 @@ bool ResourceManager::Init(ID3D12Device* device, UINT maxDescriptors)
     m_UAVCounter = {};
 
 
-    // ★ RTVヒープ作成 ★
+    // RTVヒープ作成
     m_RTVDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
     D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
@@ -71,7 +71,7 @@ bool ResourceManager::Init(ID3D12Device* device, UINT maxDescriptors)
         return false;
     }
 
-    // ★ DSVヒープ作成 ★
+    // DSVヒープ作成
     m_DSVDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 
     D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};

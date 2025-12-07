@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="ソース ファイル">
@@ -114,9 +114,6 @@
     <ClCompile Include="source\directx\resource\texture\texture.cpp">
       <Filter>directx\resource\texture</Filter>
     </ClCompile>
-    <ClCompile Include="source\directx\renderpass\forward_render_pass.cpp">
-      <Filter>directx\render_pass</Filter>
-    </ClCompile>
     <ClCompile Include="source\directx\renderpass\gbuffer_render_pass.cpp">
       <Filter>directx\render_pass</Filter>
     </ClCompile>
@@ -135,9 +132,6 @@
     <ClCompile Include="source\directx\camera\camera.cpp">
       <Filter>directx\camera</Filter>
     </ClCompile>
-    <ClCompile Include="source\framework\scene\deferredrender_test_scene.cpp">
-      <Filter>framework\scene</Filter>
-    </ClCompile>
     <ClCompile Include="source\directx\resource\rendertexture\rendertexture.cpp">
       <Filter>directx\resource\rendertexture</Filter>
     </ClCompile>
@@ -152,12 +146,6 @@
     </ClCompile>
     <ClCompile Include="source\directx\renderpass\final_blit_render_pass.cpp">
       <Filter>directx\render_pass</Filter>
-    </ClCompile>
-    <ClCompile Include="source\directx\resource\material\material.cpp">
-      <Filter>directx\resource\material</Filter>
-    </ClCompile>
-    <ClCompile Include="source\directx\resource\material\material_manager.cpp">
-      <Filter>directx\resource\material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -221,9 +209,6 @@
     <ClInclude Include="source\directx\resource\texture\texture.h">
       <Filter>directx\resource\texture</Filter>
     </ClInclude>
-    <ClInclude Include="source\directx\renderpass\forward_render_pass.h">
-      <Filter>directx\render_pass</Filter>
-    </ClInclude>
     <ClInclude Include="source\directx\renderpass\gbuffer_render_pass.h">
       <Filter>directx\render_pass</Filter>
     </ClInclude>
@@ -245,9 +230,6 @@
     <ClInclude Include="source\directx\camera\camera_data.h">
       <Filter>directx\camera</Filter>
     </ClInclude>
-    <ClInclude Include="source\framework\scene\deferredrender_test_scene.h">
-      <Filter>framework\scene</Filter>
-    </ClInclude>
     <ClInclude Include="source\directx\resource\rendertexture\rendertexture.h">
       <Filter>directx\resource\rendertexture</Filter>
     </ClInclude>
@@ -263,20 +245,8 @@
     <ClInclude Include="source\directx\renderpass\final_blit_render_pass.h">
       <Filter>directx\render_pass</Filter>
     </ClInclude>
-    <ClInclude Include="source\directx\resource\material\material.h">
-      <Filter>directx\resource\material</Filter>
-    </ClInclude>
-    <ClInclude Include="source\directx\resource\material\material_manager.h">
-      <Filter>directx\resource\material</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="source\directx\shader\basic_vs.hlsl">
-      <Filter>directx\shader</Filter>
-    </FxCompile>
-    <FxCompile Include="source\directx\shader\basic_ps.hlsl">
-      <Filter>directx\shader</Filter>
-    </FxCompile>
     <FxCompile Include="source\directx\shader\gbuffer_vs.hlsl">
       <Filter>directx\shader</Filter>
     </FxCompile>
@@ -297,9 +267,6 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="source\directx\shader\basic_header.hlsli">
-      <Filter>directx\shader</Filter>
-    </None>
     <None Include="source\directx\shader\gbuffer_header.hlsli">
       <Filter>directx\shader</Filter>
     </None>

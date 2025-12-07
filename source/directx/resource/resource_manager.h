@@ -91,7 +91,7 @@ public:
     /// </summary>
     UINT GetTotalRemainingCount() const { return m_MaxDescriptors - m_CurrentIndex; }
 
-    ///----------------------------------------RTV&DSV---------------------------------------------------------///
+    // RTV & DSV
 
     /// <summary>
     /// RTVヒープを取得
@@ -148,7 +148,7 @@ private:
     TypeCounter m_CBVCounter;
     TypeCounter m_UAVCounter;
 
-    ///----------------------------------------RTV&DSV---------------------------------------------------------///
+    // RTV & DSV
 
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RTVHeap = nullptr;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_DSVHeap = nullptr;

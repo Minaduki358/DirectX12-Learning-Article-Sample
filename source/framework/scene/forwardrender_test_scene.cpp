@@ -1,5 +1,4 @@
 #include"forwardrender_test_scene.h"
-#include"../../directx/renderpass/forward_render_pass.h"
 #include"../../directx/renderpass/gbuffer_render_pass.h"
 #include"../../directx/renderpass/lighting_render_pass.h"
 #include"../../directx/renderpass/final_blit_render_pass.h"
