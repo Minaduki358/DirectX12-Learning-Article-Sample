@@ -2,7 +2,7 @@
 #include"../directx/renderer.h"
 #include"../directx/test_mesh.h"
 #include"../framework/scene/scene_manager.h"
-#include"../framework/scene/forwardrender_test_scene.h"
+#include"../framework/scene/deferredrender_test_scene.h"
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
@@ -39,8 +39,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 		return 0;
 	}
 
-	sceneManager.RegisterScene<ForwardRenderTestScene>("ForwardRenderTestScene");
-	sceneManager.RequestChangeScene("ForwardRenderTestScene");
+	sceneManager.RegisterScene<DeferredRenderTestScene>("DeferredRenderTestScene");
+	sceneManager.RequestChangeScene("DeferredRenderTestScene");
 
 	MSG msg;
 	while (1)

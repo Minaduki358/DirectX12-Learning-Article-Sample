@@ -1,17 +1,17 @@
-#include"forwardrender_test_scene.h"
+#include"deferredrender_test_scene.h"
 #include"../../directx/renderpass/gbuffer_render_pass.h"
 #include"../../directx/renderpass/lighting_render_pass.h"
 #include"../../directx/renderpass/final_blit_render_pass.h"
 
-ForwardRenderTestScene::ForwardRenderTestScene()
+DeferredRenderTestScene::DeferredRenderTestScene()
 {
 }
 
-ForwardRenderTestScene::~ForwardRenderTestScene()
+DeferredRenderTestScene::~DeferredRenderTestScene()
 {
 }
 
-bool ForwardRenderTestScene::Init()
+bool DeferredRenderTestScene::Init()
 {
 	float aspectRatio = static_cast<float>(SystemData::k_ScreenWidth) / static_cast<float>(SystemData::k_ScreenHeight);
 	m_Camera->SetProjection(DirectX::XM_PIDIV4, aspectRatio, 0.1f, 100.0f);
@@ -26,10 +26,10 @@ bool ForwardRenderTestScene::Init()
 	return true;
 }
 
-void ForwardRenderTestScene::Uninit()
+void DeferredRenderTestScene::Uninit()
 {
 }
 
-void ForwardRenderTestScene::Update()
+void DeferredRenderTestScene::Update()
 {
 }

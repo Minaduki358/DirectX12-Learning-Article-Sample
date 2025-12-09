@@ -2,11 +2,11 @@
 
 #include"scene.h"
 
-class ForwardRenderTestScene : public Scene
+class DeferredRenderTestScene : public Scene
 {
 public:
-	ForwardRenderTestScene();
-	~ForwardRenderTestScene() override;
+	DeferredRenderTestScene();
+	~DeferredRenderTestScene() override;
 
 	bool Init() override;
 	void Uninit() override;

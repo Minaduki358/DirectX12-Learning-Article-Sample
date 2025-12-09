@@ -123,7 +123,7 @@
     <ClCompile Include="source\framework\scene\scene_manager.cpp">
       <Filter>framework\scene</Filter>
     </ClCompile>
-    <ClCompile Include="source\framework\scene\forwardrender_test_scene.cpp">
+    <ClCompile Include="source\framework\scene\deferredrender_test_scene.cpp">
       <Filter>framework\scene</Filter>
     </ClCompile>
     <ClCompile Include="source\directx\camera\camera.cpp">
@@ -218,7 +218,7 @@
     <ClInclude Include="source\framework\scene\scene_manager.h">
       <Filter>framework\scene</Filter>
     </ClInclude>
-    <ClInclude Include="source\framework\scene\forwardrender_test_scene.h">
+    <ClInclude Include="source\framework\scene\deferredrender_test_scene.h">
       <Filter>framework\scene</Filter>
     </ClInclude>
     <ClInclude Include="source\directx\camera\camera.h">

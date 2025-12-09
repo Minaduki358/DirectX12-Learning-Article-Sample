@@ -109,14 +109,14 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>C:\Users\sorai\Documents\DirectXProject\DirectX12\Sample\DirectX12_Sample\library\directx_tex\DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)library\directx_tex\DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\sorai\Documents\DirectXProject\DirectX12\Sample\DirectX12_Sample\library\directx_tex\DirectXTex\Bin\Desktop_2022\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)library\directx_tex\DirectXTex\Bin\Desktop_2022\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -128,14 +128,14 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>C:\Users\sorai\Documents\DirectXProject\DirectX12\Sample\DirectX12_Sample\library\directx_tex\DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)library\directx_tex\DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\sorai\Documents\DirectXProject\DirectX12\Sample\DirectX12_Sample\library\directx_tex\DirectXTex\Bin\Desktop_2022\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)library\directx_tex\DirectXTex\Bin\Desktop_2022\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -162,7 +162,7 @@
     <ClCompile Include="source\directx\resource\texture\texture_helper.cpp" />
     <ClCompile Include="source\directx\resource\texture\texture_manager.cpp" />
     <ClCompile Include="source\directx\vertex_helper.cpp" />
-    <ClCompile Include="source\framework\scene\forwardrender_test_scene.cpp" />
+    <ClCompile Include="source\framework\scene\deferredrender_test_scene.cpp" />
     <ClCompile Include="source\framework\scene\scene.cpp" />
     <ClCompile Include="source\framework\scene\scene_manager.cpp" />
     <ClCompile Include="source\function\singleton.cpp" />
@@ -201,7 +201,7 @@
     <ClInclude Include="source\directx\resource\texture\texture_helper.h" />
     <ClInclude Include="source\directx\resource\texture\texture_manager.h" />
     <ClInclude Include="source\directx\vertex_helper.h" />
-    <ClInclude Include="source\framework\scene\forwardrender_test_scene.h" />
+    <ClInclude Include="source\framework\scene\deferredrender_test_scene.h" />
     <ClInclude Include="source\framework\scene\scene.h" />
     <ClInclude Include="source\framework\scene\scene_manager.h" />
     <ClInclude Include="source\function\singleton.h" />
