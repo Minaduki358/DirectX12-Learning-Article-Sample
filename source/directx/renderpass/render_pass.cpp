@@ -17,6 +17,7 @@ void RenderPass::SetupDefaultViewportAndScissor()
     m_ViewPort.TopLeftX = 0.0f;
     m_ViewPort.TopLeftY = 0.0f;
     m_ViewPort.MinDepth = 0.0f;
+	m_ViewPort.MaxDepth = 1.0f;
 
     // シザー矩形設定
     m_ScissorRec.left = 0;
